@@ -29,7 +29,7 @@ type Scanner struct {
 
 // Scan walks the given directory tree and stores all matching files into a slice
 func (s *Scanner) Scan() error {
-	walkingError := filepath.Walk(".", s.scan)
+	walkingError := filepath.Walk("artifact", s.scan)
 
 	if walkingError != nil {
 		log.Fatal(walkingError)
