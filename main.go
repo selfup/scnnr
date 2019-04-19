@@ -47,9 +47,18 @@ func (s *Scanner) Scan() error {
 		return walkingError
 	}
 
+	var wg sync.WaitGroup
+
+	wg.Add(len(s.MatchedFilePaths))
 	for _, match := range s.MatchedFilePaths {
-		s.parse(match)
+		go func(m string) {
+			defer wg.Done()
+
+			s.parse(m)
+		}(match)
 	}
+
+	wg.Wait()
 
 	log.Println(s.KeywordMatches)
 
