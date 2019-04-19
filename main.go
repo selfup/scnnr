@@ -11,27 +11,35 @@ import (
 )
 
 func main() {
+	var directory string
 	var patterns []string
 	var keywords []string
 
-	if len(os.Args) > 2 {
-		patterns = strings.Split(os.Args[1], ",")
-		keywords = strings.Split(os.Args[2], ",")
+	if len(os.Args) > 3 {
+		directory = os.Args[1]
+		patterns = strings.Split(os.Args[2], ",")
+		keywords = strings.Split(os.Args[3], ",")
 	}
 
 	fmt.Println(patterns, keywords)
 
 	scanner := new(Scanner)
 
-	scanner.FilePatterns = patterns
 	scanner.Keywords = keywords
+	scanner.Directory = directory
+	scanner.FilePatterns = patterns
 
-	scanner.Scan()
+	err := scanner.Scan()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Scanner scans files and based on pattern stores in array for goroutine processing
 type Scanner struct {
 	sync.Mutex
+	Directory        string
 	MatchedFilePaths []string
 	FilePatterns     []string
 	Keywords         []string
@@ -40,10 +48,9 @@ type Scanner struct {
 
 // Scan walks the given directory tree and stores all matching files into a slice
 func (s *Scanner) Scan() error {
-	walkingError := filepath.Walk("artifact", s.scan)
+	walkingError := filepath.Walk(s.Directory, s.scan)
 
 	if walkingError != nil {
-		log.Fatal(walkingError)
 		return walkingError
 	}
 
