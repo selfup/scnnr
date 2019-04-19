@@ -1,11 +1,16 @@
 # Scannr
 
-```bash
-go run main.go "some_folder" ".js,.html" "initial-scale=1, cache= "
-```
+Scan all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
+
+It then searches for the keyword in each file and returns a slice of all files with said keyword.
+
+### Example
+
+Scan this repo for markdown files with `cache=` in them.
 
 ```bash
-$ go run main.go "./" ".js,.md" "initial-scale=1, cache= "
-[.js .md] [initial-scale=1  cache= ]
-2019/04/19 17:24:51 [README.md]
+$ go run main.go ./ .md cache=
+File patterns:  [.md]
+Keywords:  [cache=]
+Files matching pattern(s):  [README.md]
 ```

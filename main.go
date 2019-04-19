@@ -21,7 +21,7 @@ func main() {
 		keywords = strings.Split(os.Args[3], ",")
 	}
 
-	fmt.Println(patterns, keywords)
+	fmt.Println("File patterns: ", patterns, "\nKeywords: ", keywords)
 
 	scanner := new(Scanner)
 
@@ -67,7 +67,7 @@ func (s *Scanner) Scan() error {
 
 	wg.Wait()
 
-	log.Println(s.KeywordMatches)
+	fmt.Println("Files matching pattern(s): ", s.KeywordMatches)
 
 	return nil
 }
