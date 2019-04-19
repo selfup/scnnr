@@ -4,4 +4,3 @@ node_modules
 coverage
 *.DS_Store
 .cache/
-dist/
