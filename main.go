@@ -47,9 +47,18 @@ func (s *Scanner) Scan() error {
 		return walkingError
 	}
 
+	var wg sync.WaitGroup
+
+	wg.Add(len(s.MatchedFilePaths))
 	for _, match := range s.MatchedFilePaths {
-		s.parse(match)
+		go func(m string) {
+			defer wg.Done()
+
+			s.parse(m)
+		}(match)
 	}
+
+	wg.Wait()
 
 	log.Println(s.KeywordMatches)
 
@@ -77,6 +86,9 @@ func (s *Scanner) parse(match string) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 1024*3096)
 
 	for scanner.Scan() {
 		line := scanner.Text()
