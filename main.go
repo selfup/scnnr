@@ -12,7 +12,7 @@ import (
 func main() {
 	scanner := new(Scanner)
 
-	scanner.Patterns = []string{".html", ".yml", ".js"}
+	scanner.FilePatterns = []string{".html", ".yml", ".js"}
 	scanner.Keywords = []string{"initial-scale=1", "Cache: ", "cache: ", "Cache=", "cache="}
 
 	scanner.Scan()
@@ -21,10 +21,10 @@ func main() {
 // Scanner scans files and based on pattern stores in array for goroutine processing
 type Scanner struct {
 	sync.Mutex
-	Matched        []string
-	Patterns       []string
-	Keywords       []string
-	KeywordMatches []string
+	MatchedFilePaths []string
+	FilePatterns     []string
+	Keywords         []string
+	KeywordMatches   []string
 }
 
 // Scan walks the given directory tree and stores all matching files into a slice
@@ -36,7 +36,7 @@ func (s *Scanner) Scan() error {
 		return walkingError
 	}
 
-	for _, match := range s.Matched {
+	for _, match := range s.MatchedFilePaths {
 		s.parse(match)
 	}
 
@@ -50,9 +50,9 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
-	for _, pattern := range s.Patterns {
+	for _, pattern := range s.FilePatterns {
 		if strings.Contains(path, pattern) {
-			s.Matched = append(s.Matched, path)
+			s.MatchedFilePaths = append(s.MatchedFilePaths, path)
 		}
 	}
 
