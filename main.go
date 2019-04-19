@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,10 +11,20 @@ import (
 )
 
 func main() {
+	var patterns []string
+	var keywords []string
+
+	if len(os.Args) > 2 {
+		patterns = strings.Split(os.Args[1], ",")
+		keywords = strings.Split(os.Args[2], ",")
+	}
+
+	fmt.Println(patterns, keywords)
+
 	scanner := new(Scanner)
 
-	scanner.FilePatterns = []string{".html", ".yml", ".js"}
-	scanner.Keywords = []string{"initial-scale=1", "Cache: ", "cache: ", "Cache=", "cache="}
+	scanner.FilePatterns = patterns
+	scanner.Keywords = keywords
 
 	scanner.Scan()
 }

@@ -1,0 +1,17 @@
+root = true
+
+# everything other than .go files should have the same adherence
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+# ignore go files - let gofmt do work
+[*.{go}]
+indent_style = ignore
+indent_size = ignore
+end_of_line = ignore
+trim_trailing_whitespace = ignore
+charset = ignore
