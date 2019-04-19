@@ -1,7 +1,0 @@
-node_modules
-.vscode
-*.log
-coverage
-*.DS_Store
-.cache/
-dist/
