@@ -13,7 +13,7 @@ func main() {
 	scanner := new(Scanner)
 
 	scanner.Patterns = []string{".html", ".yml", ".js"}
-	scanner.Keywords = []string{"initial-scale=1", "Cache", "cache"}
+	scanner.Keywords = []string{"initial-scale=1", "Cache: ", "cache: ", "Cache=", "cache="}
 
 	scanner.Scan()
 }
