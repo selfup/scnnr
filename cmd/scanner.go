@@ -87,7 +87,6 @@ func eachSlice(files []FileData) [][]FileData {
 			chunk = newChunk
 		} else if i < len(files) {
 			chunk = append(chunk, fileData)
-			chunks = append(chunks, chunk)
 		} else {
 			chunk = append(chunk, fileData)
 		}
