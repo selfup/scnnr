@@ -17,5 +17,7 @@ README.md
 
 #### Multiple Keywords and Multiple File Extensions
 
+```bash
 scnnr (master) $ go run main.go ./ .md,.go fileData,cache
 README.md,cmd/scanner.go,main.go
+```
