@@ -77,6 +77,8 @@ func eachSlice(files []FileData) [][]FileData {
 	var chunk []FileData
 
 	for i, fileData := range files {
+		// 1023 is 1 less than the default max open files
+		// need to consider reading from an ENV for max open files
 		if i%1023 == 0 {
 			chunks = append(chunks, chunk)
 			var newChunk []FileData
