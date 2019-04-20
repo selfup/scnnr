@@ -72,29 +72,6 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func eachSlice(files []FileData) [][]FileData {
-	var chunks [][]FileData
-	var chunk []FileData
-
-	for i, fileData := range files {
-		// 1023 is 1 less than the default max open files
-		// need to consider reading from an ENV for max open files
-		if i != 0 && i%1023 == 0 {
-			chunk = append(chunk, fileData)
-			chunks = append(chunks, chunk)
-
-			var newChunk []FileData
-			chunk = newChunk
-		} else if i < len(files) {
-			chunk = append(chunk, fileData)
-		} else {
-			chunk = append(chunk, fileData)
-		}
-	}
-
-	return chunks
-}
-
 func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
 	check(err)
@@ -124,6 +101,29 @@ func (s *Scanner) parse(match FileData) {
 	}
 
 	check(scanner.Err())
+}
+
+func eachSlice(files []FileData) [][]FileData {
+	var chunks [][]FileData
+	var chunk []FileData
+
+	for i, fileData := range files {
+		// 1024 is default max files open for linux
+		if i != 0 && i%1023 == 0 {
+			chunk = append(chunk, fileData)
+			chunks = append(chunks, chunk)
+
+			var newChunk []FileData
+
+			chunk = newChunk
+		} else if i < len(files) {
+			chunk = append(chunk, fileData)
+		} else {
+			chunk = append(chunk, fileData)
+		}
+	}
+
+	return chunks
 }
 
 func sliceContains(list []string, match string) bool {
