@@ -87,11 +87,9 @@ func (s *Scanner) parse(match FileData) {
 
 		for i := 0; i < len(s.Keywords); i++ {
 			// avoid duplicating results when iterating through keywords
-			if contains(s.KeywordMatches, match.Path) {
-				break
-			}
-
-			if strings.Contains(line, s.Keywords[i]) {
+			if sliceContains(s.KeywordMatches, match.Path) {
+				continue
+			} else if strings.Contains(line, s.Keywords[i]) {
 				// utilize Mutex while parse gets called as a goroutine
 				s.Lock()
 				s.KeywordMatches = append(s.KeywordMatches, match.Path)
@@ -103,7 +101,7 @@ func (s *Scanner) parse(match FileData) {
 	check(scanner.Err())
 }
 
-func contains(list []string, match string) bool {
+func sliceContains(list []string, match string) bool {
 	for i := 0; i < len(list); i++ {
 		if list[i] == match {
 			return true
