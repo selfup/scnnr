@@ -10,7 +10,5 @@ Scan this repo for markdown files with `cache=` in them.
 
 ```bash
 $ go run main.go ./ .md cache=
-File patterns:  [.md]
-Keywords:  [cache=]
-Files matching pattern(s):  [README.md]
+README.md
 ```
