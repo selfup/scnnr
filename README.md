@@ -1,10 +1,12 @@
 # Scannr
 
-Scan all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
+Scans all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
 
-It then searches for the keyword in each file and returns a slice of all files with said keyword.
+Prints out a comma sperated list of each file containing one of the keywords.
 
-### Example
+## Example
+
+#### Single Keyword
 
 Scan this repo for markdown files with `cache=` in them.
 
@@ -12,3 +14,8 @@ Scan this repo for markdown files with `cache=` in them.
 $ go run main.go ./ .md cache=
 README.md
 ```
+
+#### Multiple Keywords and Multiple File Extensions
+
+scnnr (master) $ go run main.go ./ .md,.go fileData,cache
+README.md,cmd/scanner.go,main.go
