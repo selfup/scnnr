@@ -35,19 +35,21 @@ func (s *Scanner) Scan() error {
 
 	var wg sync.WaitGroup
 
-	matchedCount := len(s.MatchedFilePaths)
-	wg.Add(matchedCount)
+	for _, chunk := range eachSlice(s.MatchedFilePaths) {
+		matchedCount := len(chunk)
+		wg.Add(matchedCount)
 
-	for _, match := range s.MatchedFilePaths {
-		go func(m FileData) {
-			defer wg.Done()
+		for _, match := range chunk {
+			go func(m FileData) {
+				s.parse(m)
+				wg.Done()
+			}(match)
+		}
 
-			s.parse(m)
-		}(match)
+		wg.Wait()
 	}
 
-	wg.Wait()
-	fmt.Println("Files matching pattern(s): ", s.KeywordMatches)
+	fmt.Println(strings.Join(s.KeywordMatches, ","))
 
 	return nil
 }
@@ -70,6 +72,23 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+func eachSlice(files []FileData) [][]FileData {
+	var chunks [][]FileData
+	var chunk []FileData
+
+	for i, fileData := range files {
+		if i%1023 == 0 {
+			chunks = append(chunks, chunk)
+			var newChunk []FileData
+			chunk = newChunk
+		} else {
+			chunk = append(chunk, fileData)
+		}
+	}
+
+	return chunks
+}
+
 func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
 	check(err)
@@ -77,10 +96,10 @@ func (s *Scanner) parse(match FileData) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	buf := make([]byte, 0, 0)
+	buf := make([]byte, 0, 1024)
 
 	// only extend buffer to file size
-	scanner.Buffer(buf, int(match.Info.Size()))
+	scanner.Buffer(buf, 2*int(match.Info.Size()))
 
 	for scanner.Scan() {
 		line := scanner.Text()

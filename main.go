@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -37,8 +36,6 @@ func main() {
       Files matching pattern(s):  [README.md]
     `)
 	}
-
-	fmt.Println("File patterns: ", patterns, "\nKeywords: ", keywords)
 
 	scanner := cmd.Scanner{
 		Keywords:     keywords,
