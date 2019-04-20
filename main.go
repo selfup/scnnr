@@ -30,10 +30,8 @@ func main() {
 
       Example:
 
-      $ go run main.go ./ .md,.markdown cache=,main.go
-      File patterns:  [.md .markdown]
-      Keywords:  [cache= main.go]
-      Files matching pattern(s):  [README.md]
+      $ scnnr . .md,.go fileData,cache
+      README.md,cmd/scanner.go,main.go
     `)
 	}
 
