@@ -14,10 +14,16 @@ import (
 type Scanner struct {
 	sync.Mutex
 	Directory        string
-	MatchedFilePaths []string
 	FilePatterns     []string
 	Keywords         []string
 	KeywordMatches   []string
+	MatchedFilePaths []FileData
+}
+
+// FileData contains the path of the file as well as relevant metadata
+type FileData struct {
+	Path string
+	Info os.FileInfo
 }
 
 // Scan walks the given directory tree and stores all matching files into a slice
@@ -33,7 +39,7 @@ func (s *Scanner) Scan() error {
 	wg.Add(matchedCount)
 
 	for _, match := range s.MatchedFilePaths {
-		go func(m string) {
+		go func(m FileData) {
 			defer wg.Done()
 
 			s.parse(m)
@@ -53,8 +59,10 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 
 	for _, pattern := range s.FilePatterns {
 		if !info.IsDir() {
-			if strings.Contains(filepath.Ext(path), pattern) {
-				s.MatchedFilePaths = append(s.MatchedFilePaths, path)
+			fileExtension := filepath.Ext(path)
+
+			if fileExtension == pattern {
+				s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
 			}
 		}
 	}
@@ -62,27 +70,31 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func (s *Scanner) parse(match string) {
-	file, err := os.Open(match)
+func (s *Scanner) parse(match FileData) {
+	file, err := os.Open(match.Path)
 	check(err)
 
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 1024*3096)
+	buf := make([]byte, 0, 0)
+
+	// only extend buffer to file size
+	scanner.Buffer(buf, int(match.Info.Size()))
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		for i := 0; i < len(s.Keywords); i++ {
-			if contains(s.KeywordMatches, match) {
+			// avoid duplicating results when iterating through keywords
+			if contains(s.KeywordMatches, match.Path) {
 				break
 			}
 
 			if strings.Contains(line, s.Keywords[i]) {
+				// utilize Mutex while parse gets called as a goroutine
 				s.Lock()
-				s.KeywordMatches = append(s.KeywordMatches, match)
+				s.KeywordMatches = append(s.KeywordMatches, match.Path)
 				s.Unlock()
 			}
 		}
