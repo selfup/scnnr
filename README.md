@@ -26,7 +26,9 @@ README.md,cmd/scanner.go,main.go
 
 ## Performance
 
-For example scanning 900 minified JS/CSS bundles.
+Use of goroutines, buffers, streams, mutexes, and simple checks.
+
+Memory in the following example never went above 5.5MB for the entire program.
 
 No matches on 33k files after `npm i`:
 
