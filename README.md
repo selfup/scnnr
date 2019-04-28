@@ -31,6 +31,8 @@ README.md,cmd/scanner.go,main.go
 #### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
+import "github.com/selfup/scnnr/scnnr"
+
 directory := "./artifact"
 keywords := "something,something else,another thing"
 filepatterns := ".js,.go,.md"
