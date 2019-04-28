@@ -28,6 +28,26 @@ scnnr (master) $ go run main.go ./ .md,.go fileData,cache
 README.md,cmd/scanner.go,main.go
 ```
 
+#### Using the package github.com/selfup/scnnr/scnnr
+
+```go
+directory := "./artifact"
+keywords := "something,something else,another thing"
+filepatterns := ".js,.go,.md"
+
+scanner := scnnr.Scanner{
+  Directory:    directory,
+  FilePatterns: patterns,
+  Keywords:     keywords,
+}
+
+err := scanner.Scan()
+
+if err != nil {
+  log.Fatal(err)
+}
+```
+
 ## Performance
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
