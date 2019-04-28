@@ -76,8 +76,6 @@ func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
 	check(err)
 
-	defer file.Close()
-
 	scanner := bufio.NewScanner(file)
 	buf := make([]byte, 0, 1024)
 
@@ -101,6 +99,8 @@ func (s *Scanner) parse(match FileData) {
 	}
 
 	check(scanner.Err())
+
+	file.Close()
 }
 
 func eachSlice(files []FileData) [][]FileData {
