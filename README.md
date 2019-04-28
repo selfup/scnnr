@@ -6,6 +6,10 @@ Prints out a comma sperated list of each file containing one of the keywords.
 
 This is extremely helpful for dealing with multiple large files.
 
+Can be used in a serverless lambda/function to scan hundreds of artifacts at once (one artifact per lambda).
+
+Max file descriptors is set to 1024 (linux default).
+
 ## Example
 
 #### Single Keyword
@@ -40,7 +44,7 @@ user    0m0.235s
 sys     0m0.131s
 ```
 
-33k file and 517 matches. _Not all 517 matches displayed in README_:
+33k files, two file types, one keyword, and 517 matches. _Not all 517 matches displayed in README_:
 
 ```
 scnnr (master) $ time go run main.go artifact/ .md,.js cache
@@ -48,4 +52,14 @@ found 517 matches: artifact/node_modules/@babel/core/node_modules/@babel/travers
 real    0m0.532s
 user    0m1.430s
 sys     0m0.279s
+```
+
+33k files, two file types, 5 keywords, and 313 matches. _Not all 313 matches displayed in README_:
+
+```
+scnnr (master) $ time go run main.go artifact/ .js,.md stuff,things,wow,lol,omg
+found 313 matches: artifact/README.md,artifact/node_modules/@babel/core/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/helper-call-delegate/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/core/node_modules/json5/CHANGELOG.md,artifact/node_modules/@babel/generator/node_modules/jsesc/README.md,artifact/node_modules/@babel/helper-replace-supers/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/helpers/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/static-module/node_modules/source-map/dist/source-map.debug.js
+real    0m0.734s
+user    0m2.814s
+sys     0m0.264s
 ```
