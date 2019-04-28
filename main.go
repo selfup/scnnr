@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/selfup/scnnr/cmd"
+	"github.com/selfup/scnnr/scnnr"
 )
 
 func main() {
@@ -31,11 +31,11 @@ func main() {
       Example:
 
       $ scnnr . .md,.go fileData,cache
-      README.md,cmd/scanner.go,main.go
+      README.md,scnnr/scanner.go,main.go
     `)
 	}
 
-	scanner := cmd.Scanner{
+	scanner := scnnr.Scanner{
 		Keywords:     keywords,
 		Directory:    directory,
 		FilePatterns: patterns,

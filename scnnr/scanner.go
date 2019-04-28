@@ -1,4 +1,4 @@
-package cmd
+package scnnr
 
 import (
 	"bufio"
@@ -116,8 +116,6 @@ func eachSlice(files []FileData) [][]FileData {
 			var newChunk []FileData
 
 			chunk = newChunk
-		} else if i < len(files) {
-			chunk = append(chunk, fileData)
 		} else {
 			chunk = append(chunk, fileData)
 		}
