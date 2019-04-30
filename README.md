@@ -34,8 +34,8 @@ README.md,cmd/scanner.go,main.go
 import "github.com/selfup/scnnr/scnnr"
 
 directory := "./artifact"
-keywords := "something,something else,another thing"
-filepatterns := ".js,.go,.md"
+keywords := []string{"something","something else", "another thing"}
+patterns := []string{".js",".go",".md"}
 
 scanner := scnnr.Scanner{
   Directory:    directory,
