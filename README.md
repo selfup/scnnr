@@ -60,7 +60,7 @@ No matches on 33k files after `npm i`:
 
 ```
 scnnr (master) $ time go run main.go artifact/ .kt cache
-found 0 matches: 
+found 0 matches:
 real    0m0.287s
 user    0m0.235s
 sys     0m0.131s
@@ -84,4 +84,23 @@ found 313 matches: artifact/README.md,artifact/node_modules/@babel/core/node_mod
 real    0m0.734s
 user    0m2.814s
 sys     0m0.264s
+```
+
+33k files, 4 file types, 5 common keywords, and 18506 matches. _Not all 18506 matches displayed in README_:
+
+Results are piped into a file to reduce noise.
+
+The amount of file paths results in 1.2MB of text data..
+
+```
+scnnr (master) $ ls -lahg .results
+-rw-r--r-- 1 selfup 1.2M May 17 17:05 .results
+```
+
+```
+scnnr (master) $ time go run main.go artifact/ .js,.ts,.md,.css const,let,var,import,export > .results
+
+real    0m5.054s
+user    0m30.983s
+sys     0m0.365s
 ```
