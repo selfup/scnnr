@@ -82,17 +82,20 @@ func (s *Scanner) parse(match FileData) {
 	// only extend buffer to file size
 	scanner.Buffer(buf, 2*int(match.Info.Size()))
 
+	found := false
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		for i := 0; i < len(s.Keywords); i++ {
-			// avoid duplicating results when iterating through keywords
-			if sliceContains(s.KeywordMatches, match.Path) {
+			if found {
 				break
-			} else if strings.Contains(line, s.Keywords[i]) {
-				// utilize Mutex while parse gets called as a goroutine
+			}
+
+			if strings.Contains(line, s.Keywords[i]) {
 				s.Lock()
 				s.KeywordMatches = append(s.KeywordMatches, match.Path)
+				found = true
 				s.Unlock()
 				break
 			}
@@ -123,16 +126,6 @@ func eachSlice(files []FileData) [][]FileData {
 	}
 
 	return chunks
-}
-
-func sliceContains(list []string, match string) bool {
-	for i := 0; i < len(list); i++ {
-		if list[i] == match {
-			return true
-		}
-	}
-
-	return false
 }
 
 func check(err error) {
