@@ -93,14 +93,11 @@ Results are piped into a file to reduce noise.
 The amount of file paths results in 1.2MB of text data..
 
 ```
-scnnr (master) $ ls -lahg .results
--rw-r--r-- 1 selfup 1.2M May 17 17:05 .results
-```
-
-```
 scnnr (master) $ time go run main.go artifact/ .js,.ts,.md,.css const,let,var,import,export > .results
 
-real    0m5.054s
-user    0m30.983s
-sys     0m0.365s
+real    0m0.498s
+user    0m0.895s
+sys     0m0.345s
+scnnr (master) $ ls -lahg .results
+-rw-r--r-- 1 selfup 1.2M May 17 17:22 .results
 ```
