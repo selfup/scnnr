@@ -88,12 +88,13 @@ func (s *Scanner) parse(match FileData) {
 		for i := 0; i < len(s.Keywords); i++ {
 			// avoid duplicating results when iterating through keywords
 			if sliceContains(s.KeywordMatches, match.Path) {
-				continue
+				break
 			} else if strings.Contains(line, s.Keywords[i]) {
 				// utilize Mutex while parse gets called as a goroutine
 				s.Lock()
 				s.KeywordMatches = append(s.KeywordMatches, match.Path)
 				s.Unlock()
+				break
 			}
 		}
 	}
