@@ -69,21 +69,25 @@ sys     0m0.131s
 33k files, two file types, one keyword, and 517 matches. _Not all 517 matches displayed in README_:
 
 ```
-scnnr (master) $ time go run main.go artifact/ .md,.js cache
-found 517 matches: artifact/node_modules/@babel/core/node_modules/@babel/traverse/lib/path/index.js,artifact/dist/src.7fec4c36.js,artifact/node_modules/@babel/core/node_modules/@babel/traverse/lib/index.js,artifact/node_modules/symbol-tree/lib/SymbolTree.js,artifact/node_modules/symbol-tree/lib/SymbolTreeNode.js
-real    0m0.532s
-user    0m1.430s
-sys     0m0.279s
+scnnr (master) $ time go run main.go artifact/ .md,.js cache > .results
+
+real    0m0.435s
+user    0m0.909s
+sys     0m0.287s
+scnnr (master) $ ls -lahg .results
+-rw-r--r-- 1 selfup 30K May 18 08:33 .results
 ```
 
 33k files, two file types, 5 keywords, and 313 matches. _Not all 313 matches displayed in README_:
 
 ```
-scnnr (master) $ time go run main.go artifact/ .js,.md stuff,things,wow,lol,omg
-found 313 matches: artifact/README.md,artifact/node_modules/@babel/core/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/helper-call-delegate/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/core/node_modules/json5/CHANGELOG.md,artifact/node_modules/@babel/generator/node_modules/jsesc/README.md,artifact/node_modules/@babel/helper-replace-supers/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/@babel/helpers/node_modules/@babel/parser/CHANGELOG.md,artifact/node_modules/static-module/node_modules/source-map/dist/source-map.debug.js
-real    0m0.734s
-user    0m2.814s
-sys     0m0.264s
+scnnr (master) $ time go run main.go artifact/ .js,.md stuff,things,wow,lol,omg > .results
+
+real    0m0.516s
+user    0m1.085s
+sys     0m0.358s
+scnnr (master) $ ls -lahg .results
+-rw-r--r-- 1 selfup 20K May 18 08:33 .results
 ```
 
 33k files, 4 file types, 5 common keywords, and 18506 matches. _Not all 18506 matches displayed in README_:
@@ -95,9 +99,9 @@ The amount of file paths results in 1.2MB of text data..
 ```
 scnnr (master) $ time go run main.go artifact/ .js,.ts,.md,.css const,let,var,import,export > .results
 
-real    0m0.498s
-user    0m0.895s
-sys     0m0.345s
+real    0m0.504s
+user    0m1.008s
+sys     0m0.308s
 scnnr (master) $ ls -lahg .results
 -rw-r--r-- 1 selfup 1.2M May 17 17:22 .results
 ```
