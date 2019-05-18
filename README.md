@@ -50,6 +50,12 @@ if err != nil {
 }
 ```
 
+## Regex
+
+`SCNNR_REGEX=1 go run main.go artifact/ .md,.js cach? > .results`
+
+If you add the `SCNNR_REGEX=1` ENV variable you can then use regex statements instead of raw keywords.
+
 ## Performance
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
