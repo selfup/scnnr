@@ -52,7 +52,7 @@ func (s *Scanner) Scan() error {
 		wg.Wait()
 	}
 
-	fmt.Printf("found %d matches: %s", len(s.KeywordMatches), strings.Join(s.KeywordMatches, ","))
+	fmt.Printf("found %d matches: \n%s", len(s.KeywordMatches), strings.Join(s.KeywordMatches, ","))
 
 	return nil
 }
