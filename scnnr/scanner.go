@@ -126,6 +126,10 @@ func eachSlice(files []FileData) [][]FileData {
 	var chunks [][]FileData
 	var chunk []FileData
 
+	if len(files) < 1025 {
+		return [][]FileData{files}
+	}
+
 	for i, fileData := range files {
 		// 1024 is default max files open for linux
 		if i != 0 && i%1023 == 0 {
