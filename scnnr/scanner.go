@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 )
@@ -35,13 +36,15 @@ func (s *Scanner) Scan() error {
 
 	var wg sync.WaitGroup
 
+	regex := os.Getenv("SCNNR_REGEX")
+
 	for _, chunk := range eachSlice(s.MatchedFilePaths) {
 		matchedCount := len(chunk)
 		wg.Add(matchedCount)
 
 		for _, match := range chunk {
 			go func(m FileData) {
-				s.parse(m)
+				s.parse(m, regex)
 				wg.Done()
 			}(match)
 		}
@@ -72,7 +75,7 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func (s *Scanner) parse(match FileData) {
+func (s *Scanner) parse(match FileData, regex string) {
 	file, err := os.Open(match.Path)
 	check(err)
 
@@ -92,12 +95,24 @@ func (s *Scanner) parse(match FileData) {
 				break
 			}
 
-			if strings.Contains(line, s.Keywords[i]) {
-				s.Lock()
-				s.KeywordMatches = append(s.KeywordMatches, match.Path)
-				found = true
-				s.Unlock()
-				break
+			if regex == "1" {
+				re := regexp.MustCompile(s.Keywords[i])
+
+				if re.Match([]byte(line)) {
+					s.Lock()
+					s.KeywordMatches = append(s.KeywordMatches, match.Path)
+					found = true
+					s.Unlock()
+					break
+				}
+			} else {
+				if strings.Contains(line, s.Keywords[i]) {
+					s.Lock()
+					s.KeywordMatches = append(s.KeywordMatches, match.Path)
+					found = true
+					s.Unlock()
+					break
+				}
 			}
 		}
 	}
