@@ -80,7 +80,7 @@ user    0m0.235s
 sys     0m0.131s
 ```
 
-33k files, two file types, one keyword, and 517 matches. _Not all 517 matches displayed in README_:
+33k files, two file types, one keyword, and 567 matches. _Not all 517 matches displayed in README_:
 
 ```
 scnnr (master) $ time go run main.go artifact/ .md,.js cache > .results
@@ -92,7 +92,7 @@ scnnr (master) $ ls -lahg .results
 -rw-r--r-- 1 selfup 30K May 18 08:33 .results
 ```
 
-33k files, two file types, 5 keywords, and 313 matches. _Not all 313 matches displayed in README_:
+33k files, two file types, 5 keywords, and 360 matches. _Not all 313 matches displayed in README_:
 
 ```
 scnnr (master) $ time go run main.go artifact/ .js,.md stuff,things,wow,lol,omg > .results
@@ -104,7 +104,7 @@ scnnr (master) $ ls -lahg .results
 -rw-r--r-- 1 selfup 20K May 18 08:33 .results
 ```
 
-33k files, 4 file types, 5 common keywords, and 18506 matches. _Not all 18506 matches displayed in README_:
+33k files, 4 file types, 5 common keywords, and 18866 matches. _Not all 18506 matches displayed in README_:
 
 Results are piped into a file to reduce noise.
 
