@@ -17,6 +17,7 @@ type Scanner struct {
 	Directory        string
 	FilePatterns     []string
 	Keywords         []string
+	RegexKeywords    []string
 	KeywordMatches   []string
 	MatchedFilePaths []FileData
 }
@@ -37,6 +38,10 @@ func (s *Scanner) Scan() error {
 	var wg sync.WaitGroup
 
 	regex := os.Getenv("SCNNR_REGEX")
+
+	if regex == "1" || len(os.Args) > 4 && os.Args[4] == "rgx" {
+		s.RegexKeywords = s.Keywords
+	}
 
 	for _, chunk := range eachSlice(s.MatchedFilePaths) {
 		matchedCount := len(chunk)
@@ -75,6 +80,9 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+// If RegexKeywords has a length greater than 0 the parser will switch to regex mode.
+// Otherwise strings.Contains will be used.
+// RegexKeywords will be populated if the 4th argument is "rgx" or if the SCNNR_REGEX ENV is set to "1"
 func (s *Scanner) parse(match FileData, regex string) {
 	file, err := os.Open(match.Path)
 	check(err)
@@ -95,8 +103,8 @@ func (s *Scanner) parse(match FileData, regex string) {
 				break
 			}
 
-			if regex == "1" {
-				re := regexp.MustCompile(s.Keywords[i])
+			if len(s.RegexKeywords) > 0 {
+				re := regexp.MustCompile(s.RegexKeywords[i])
 
 				if re.Match([]byte(line)) {
 					s.Lock()
