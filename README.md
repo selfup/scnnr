@@ -64,6 +64,29 @@ user    0m2.398s
 sys     0m0.311s
 ```
 
+#### As a lib
+
+```go
+import "github.com/selfup/scnnr/scnnr"
+
+directory := "./artifact"
+keywords := []string{"const PASSW*","password?", "export PASS?"}
+patterns := []string{".js",".ts"}
+
+scanner := scnnr.Scanner{
+  Directory:     directory,
+  FilePatterns:  patterns,
+  Keywords:      keywords,
+  RegexKeywords: keywords,
+}
+
+err := scanner.Scan()
+
+if err != nil {
+  log.Fatal(err)
+}
+```
+
 ## Performance
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
