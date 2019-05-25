@@ -52,6 +52,16 @@ if err != nil {
 
 ## Regex
 
+#### As a 4th argument
+
+You can pass: `rgx`
+
+This will reead keywords as regex expressions.
+
+`go run main.go artifact/ .md,.js cach?,expor* rgx`
+
+#### Using an ENV
+
 `SCNNR_REGEX=1 go run main.go artifact/ .md,.js cach? > .results`
 
 If you add the `SCNNR_REGEX=1` ENV variable you can then use regex statements instead of raw keywords.
@@ -64,7 +74,7 @@ user    0m2.398s
 sys     0m0.311s
 ```
 
-#### As a lib
+#### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
 import "github.com/selfup/scnnr/scnnr"
