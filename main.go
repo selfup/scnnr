@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/selfup/scnnr/scnnr"
@@ -14,21 +16,30 @@ func main() {
 	var keywords []string
 
 	var dir string
-	flag.StringVar(&dir, "dir", "", "directory where scnnr will scan")
+	flag.StringVar(&dir, "d", "", `REQUIRED
+    directory where scnnr will scan`)
 
 	var ext string
-	flag.StringVar(&ext, "ext", "", "a comma delimted list of file extensions to search")
+	flag.StringVar(&ext, "e", "", `REQUIRED
+    a comma delimted list of file extensions to scan`)
 
 	var kwd string
-	flag.StringVar(&kwd, "kwd", "", "a comma delimted list of keywords to search for in a file")
+	flag.StringVar(&kwd, "k", "", `REQUIRED
+    a comma delimted list of keywords to search for in a file`)
 
 	var rgx bool
-	flag.BoolVar(&rgx, "rgx", false, "wether to use the regex engine or not - defaults to false")
+	flag.BoolVar(&rgx, "r", false, `OPTIONAL
+    wether to use the regex engine or not
+    defaults to false and will not use the regex engine for scans unless set to a truthy value
+    truthy values are: 1, t, T, true, True, TRUE
+    flasey values are: 0, f, F, false, False, FALSE`)
 
 	flag.Parse()
 
 	if dir == "" && kwd == "" && ext == "" {
-		log.Fatal("please use the -h flag to see how to use this tool")
+		flag.PrintDefaults()
+		fmt.Print("\nERROR - scannr has required arguments - please read above output - exiting..\n\n")
+		os.Exit(1)
 	}
 
 	directory = dir

@@ -19,13 +19,13 @@ Max file descriptors is set to 1024 (linux default).
 ```
 $ ./main -h
 Usage of ./main:
-  -dir string
+  -d string
         directory where scnnr will scan
-  -ext string
+  -e string
         a comma delimted list of file extensions to search
-  -kwd string
+  -k string
         a comma delimted list of keywords to search for in a file
-  -rgx
+  -r
         wether to use the regex engine or not - defaults to false
 ```
 
@@ -34,14 +34,14 @@ Usage of ./main:
 Scan this repo for markdown files with `cache=` in them.
 
 ```bash
-$ go run main.go -ext=".md" -dir="." -kwd="cache="
+$ go run main.go -e=".md" -d="." -k="cache="
 README.md
 ```
 
 Or without quotes (if no need to escape anything)
 
 ```bash
-go run main.go -ext=.md -dir=. -kwd=cache=
+go run main.go -e=.md -d=. -k=cache=
 ```
 
 #### Multiple Keywords and Multiple File Extensions
@@ -77,14 +77,14 @@ if err != nil {
 
 ## Regex
 
-`go run main.go -ext=".js" -dir="artifact" -kwd="const" -rgx=T > .results`
+`go run main.go -e=".js" -d="artifact" -k="const" -r=T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
 
 `t, T, 1, true, True, TRUE`
 
 ```
-scnnr $ time go run main.go -rgx=1 -dir=artifact -ext=.js,.ts,.md -kwd='cons*,let?,var?, impor*, expor*' > .results
+scnnr $ time go run main.go -r=1 -d=artifact -e=.js,.ts,.md -k='cons*,let?,var?, impor*, expor*' > .results
 
 real    0m0.748s
 user    0m2.398s
@@ -124,7 +124,7 @@ Memory in the following example never went above 5.5MB for the entire program.
 No matches on 33k files after `npm i` for a JavaScript project as the `artifact`:
 
 ```
-$ time go run main.go -dir=artifact -ext=.kt -kwd=cache
+$ time go run main.go -d=artifact -e=.kt -k=cache
 
 
 real    0m0.289s
@@ -135,7 +135,7 @@ sys     0m0.138s
 33k files, two file types, one keyword, and 567 matches. _Not all 567 matches displayed in README_:
 
 ```
-$ time go run main.go -dir=artifact -ext=.md,.js -kwd=cache > .results
+$ time go run main.go -d=artifact -e=.md,.js -k=cache > .results
 
 real    0m0.435s
 user    0m0.843s
@@ -147,7 +147,7 @@ $ ls -lahg .results
 33k files, two file types, 5 keywords, and 360 matches. _Not all 360 matches displayed in README_:
 
 ```
-$ time go run main.go -dir=artifact -ext=.js,.md -kwd=stuff,things,wow,lol,omg > .results
+$ time go run main.go -d=artifact -e=.js,.md -k=stuff,things,wow,lol,omg > .results
 
 real    0m0.450s
 user    0m1.016s
@@ -163,7 +163,7 @@ Results are piped into a file to reduce noise.
 The amount of file paths results in 1.2MB of text data..
 
 ```
-$ time go run main.go -dir=artifact -ext=.js,.ts,.md,.css -kwd=const,let,var,import,export > .results
+$ time go run main.go -d=artifact -e=.js,.ts,.md,.css -k=const,let,var,import,export > .results
 
 real    0m0.445s
 user    0m0.924s
