@@ -72,7 +72,7 @@ user    0m2.398s
 sys     0m0.311s
 ```
 
-#### As a lib
+#### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
 import "github.com/selfup/scnnr/scnnr"
