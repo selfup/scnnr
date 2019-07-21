@@ -14,10 +14,10 @@ import (
 // Scanner scans files and based on pattern stores in array for goroutine processing
 type Scanner struct {
 	sync.Mutex
+	Regex            bool
 	Directory        string
-	FilePatterns     []string
+	FileExtensions   []string
 	Keywords         []string
-	RegexKeywords    []string
 	KeywordMatches   []string
 	MatchedFilePaths []FileData
 }
@@ -37,19 +37,13 @@ func (s *Scanner) Scan() error {
 
 	var wg sync.WaitGroup
 
-	regex := os.Getenv("SCNNR_REGEX")
-
-	if regex == "1" || len(os.Args) > 4 && os.Args[4] == "rgx" {
-		s.RegexKeywords = s.Keywords
-	}
-
 	for _, chunk := range eachSlice(s.MatchedFilePaths) {
 		matchedCount := len(chunk)
 		wg.Add(matchedCount)
 
 		for _, match := range chunk {
 			go func(m FileData) {
-				s.parse(m, regex)
+				s.parse(m)
 				wg.Done()
 			}(match)
 		}
@@ -57,7 +51,7 @@ func (s *Scanner) Scan() error {
 		wg.Wait()
 	}
 
-	fmt.Printf("found %d matches: \n%s", len(s.KeywordMatches), strings.Join(s.KeywordMatches, ","))
+	fmt.Println(strings.Join(s.KeywordMatches, "\n"))
 
 	return nil
 }
@@ -67,7 +61,7 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
-	for _, pattern := range s.FilePatterns {
+	for _, pattern := range s.FileExtensions {
 		if !info.IsDir() {
 			fileExtension := filepath.Ext(path)
 
@@ -80,10 +74,9 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-// If RegexKeywords has a length greater than 0 the parser will switch to regex mode.
+// If Regex is true the parser will switch to regex mode.
 // Otherwise strings.Contains will be used.
-// RegexKeywords will be populated if the 4th argument is "rgx" or if the SCNNR_REGEX ENV is set to "1"
-func (s *Scanner) parse(match FileData, regex string) {
+func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
 	check(err)
 
@@ -103,8 +96,8 @@ func (s *Scanner) parse(match FileData, regex string) {
 				break
 			}
 
-			if len(s.RegexKeywords) > 0 {
-				re := regexp.MustCompile(s.RegexKeywords[i])
+			if s.Regex {
+				re := regexp.MustCompile(s.Keywords[i])
 
 				if re.Match([]byte(line)) {
 					s.Lock()

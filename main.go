@@ -1,8 +1,8 @@
 package main
 
 import (
+	"flag"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/selfup/scnnr/scnnr"
@@ -10,35 +10,36 @@ import (
 
 func main() {
 	var directory string
-	var patterns []string
+	var extensions []string
 	var keywords []string
 
-	if len(os.Args) > 3 {
-		directory = os.Args[1]
-		patterns = strings.Split(os.Args[2], ",")
-		keywords = strings.Split(os.Args[3], ",")
-	} else {
-		log.Fatal(`
-    
-      Not enough args!
+	var dir string
+	flag.StringVar(&dir, "dir", "", "directory where scnnr will scan")
 
-      scnnr <directory> <extension(s)> <keyword(s)>
+	var ext string
+	flag.StringVar(&ext, "ext", "", "a comma delimted list of file extensions to search")
 
-      Extension(s) and Keywords(s) can be in csv format
-      
-      snnr <directory> .js,.jsx,.py cache=,cache:
+	var kwd string
+	flag.StringVar(&kwd, "kwd", "", "a comma delimted list of keywords to search for in a file")
 
-      Example:
+	var rgx bool
+	flag.BoolVar(&rgx, "rgx", false, "wether to use the regex engine or not - defaults to false")
 
-      $ scnnr . .md,.go fileData,cache
-      README.md,scnnr/scanner.go,main.go
-    `)
+	flag.Parse()
+
+	if dir == "" && kwd == "" && ext == "" {
+		log.Fatal("please use the -h flag to see how to use this tool")
 	}
 
+	directory = dir
+	extensions = strings.Split(ext, ",")
+	keywords = strings.Split(kwd, ",")
+
 	scanner := scnnr.Scanner{
-		Keywords:     keywords,
-		Directory:    directory,
-		FilePatterns: patterns,
+		Regex:          rgx,
+		Keywords:       keywords,
+		Directory:      directory,
+		FileExtensions: extensions,
 	}
 
 	err := scanner.Scan()
