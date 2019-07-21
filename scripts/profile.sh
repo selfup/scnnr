@@ -30,7 +30,7 @@ else
   PROF_TYPE="cpu"
 fi
 
-time go run main.go artifact .js cache $1
+time go run main.go -dir=artifact -ext=.js -kwd=cache
 
 sleep 1
 
