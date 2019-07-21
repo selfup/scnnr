@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 
 ###
-# Please get pprof: go get github.com/pkg/profile
-# import it
+# go get github.com/pkg/profile
+# import "github.com/pkg/profile"
+# THEN in main()
 # defer profile.Start().Stop()
 # OR
 # defer profile.Start(profile.MemProfile).Stop()
-# run this script to profile!
-# real    0m0.456s
-# user    0m1.302s
-# sys     0m0.218s
-# Max 5.5MB on average for 33k files (node_modules)
 ###
 
 set -e
@@ -30,7 +26,7 @@ else
   PROF_TYPE="cpu"
 fi
 
-time go run main.go -d=artifact -e=.js -k=cache
+time go run main.go -d=. -e=.md -k=cache > .results
 
 sleep 1
 
