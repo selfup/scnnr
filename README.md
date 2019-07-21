@@ -79,8 +79,12 @@ if err != nil {
 
 `go run main.go -ext=".js" -dir="artifact" -kwd="const" -rgx=T > .results`
 
+According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
+
+`t, T, 1, true, True, TRUE`
+
 ```
-scnnr$ time go run main.go -rgx=T -dir=artifact -ext=.js,.ts,.md -kwd='cons*,let?,var?, impor*, expor*' > .results
+scnnr$ time go run main.go -rgx=1 -dir=artifact -ext=.js,.ts,.md -kwd='cons*,let?,var?, impor*, expor*' > .results
 
 real    0m0.748s
 user    0m2.398s
@@ -117,37 +121,39 @@ Use of goroutines, buffers, streams, mutexes, and simple checks.
 
 Memory in the following example never went above 5.5MB for the entire program.
 
-No matches on 33k files after `npm i`:
+No matches on 33k files after `npm i` for a JavaScript project as the `artifact`:
 
 ```
-scnnr (master) $ time go run main.go artifact/ .kt cache
-real    0m0.287s
-user    0m0.235s
-sys     0m0.131s
+scnnr (flags) $ time go run main.go -dir=artifact -ext=.kt -kwd=cache
+
+
+real    0m0.289s
+user    0m0.241s
+sys     0m0.138s
 ```
 
 33k files, two file types, one keyword, and 567 matches. _Not all 567 matches displayed in README_:
 
 ```
-scnnr (master) $ time go run main.go artifact/ .md,.js cache > .results
+scnnr (flags) $ time go run main.go -dir=artifact -ext=.md,.js -kwd=cache > .results
 
 real    0m0.435s
-user    0m0.909s
-sys     0m0.287s
-scnnr (master) $ ls -lahg .results
--rw-r--r-- 1 selfup 30K May 18 08:33 .results
+user    0m0.843s
+sys     0m0.258s
+scnnr (flags) $ ls -lahg .results
+-rw-r--r-- 1 selfup 33K Jul 21 00:55 .results
 ```
 
 33k files, two file types, 5 keywords, and 360 matches. _Not all 360 matches displayed in README_:
 
 ```
-scnnr (master) $ time go run main.go artifact/ .js,.md stuff,things,wow,lol,omg > .results
+scnnr (flags) $ time go run main.go -dir=artifact -ext=.js,.md -kwd=stuff,things,wow,lol,omg > .results
 
-real    0m0.516s
-user    0m1.085s
-sys     0m0.358s
-scnnr (master) $ ls -lahg .results
--rw-r--r-- 1 selfup 20K May 18 08:33 .results
+real    0m0.450s
+user    0m1.016s
+sys     0m0.263s
+scnnr (flags) $ ls -lahg .results
+-rw-r--r-- 1 selfup 22K Jul 21 00:53 .results
 ```
 
 33k files, 4 file types, 5 common keywords, and 18866 matches. _Not all 18866 matches displayed in README_:
@@ -157,11 +163,11 @@ Results are piped into a file to reduce noise.
 The amount of file paths results in 1.2MB of text data..
 
 ```
-scnnr (master) $ time go run main.go artifact/ .js,.ts,.md,.css const,let,var,import,export > .results
+scnnr (flags) $ time go run main.go -dir=artifact -ext=.js,.ts,.md,.css -kwd=const,let,var,import,export > .results
 
-real    0m0.504s
-user    0m1.008s
-sys     0m0.308s
-scnnr (master) $ ls -lahg .results
--rw-r--r-- 1 selfup 1.2M May 17 17:22 .results
+real    0m0.581s
+user    0m1.347s
+sys     0m0.456s
+scnnr (flags) $ ls -lahg .results
+-rw-r--r-- 1 selfup 1.2M Jul 21 00:57 .results
 ```
