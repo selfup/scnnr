@@ -58,7 +58,7 @@ go run main.go -e=.md -d=. -k=cache=
 #### Multiple Keywords and Multiple File Extensions
 
 ```bash
-$ go run main.go ./ .md,.go fileData,cache
+$ go run main.go -d=. -e=.md,.go -k=fileData,cache
 README.md
 cmd/scanner.go
 main.go
