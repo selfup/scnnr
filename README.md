@@ -16,17 +16,28 @@ Max file descriptors is set to 1024 (linux default).
 
 #### Help
 
+Either use the `-h` flag or no flags at all to get help info.
+
+Without the `-h` flag and/or all required args, `scnnr` will exit with a status code of 1:
+
 ```
-$ ./main -h
-Usage of ./main:
+$ scnnr
   -d string
-        directory where scnnr will scan
+        REQUIRED
+            directory where scnnr will scan
   -e string
-        a comma delimted list of file extensions to search
+        REQUIRED
+            a comma delimted list of file extensions to scan
   -k string
-        a comma delimted list of keywords to search for in a file
-  -r
-        wether to use the regex engine or not - defaults to false
+        REQUIRED
+            a comma delimted list of keywords to search for in a file
+  -r    OPTIONAL
+            wether to use the regex engine or not
+            defaults to false and will not use the regex engine for scans unless set to a truthy value
+            truthy values are: 1, t, T, true, True, TRUE
+            flasey values are: 0, f, F, false, False, FALSE
+
+ERROR - scannr has required arguments - please read above output - exiting..
 ```
 
 #### Single Keyword
