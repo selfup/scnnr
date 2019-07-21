@@ -2,7 +2,9 @@
 
 Scans all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
 
-Prints out a comma sperated list of each file containing one of the keywords.
+Prints out `\n` delimted string of each file (filepath in artifact) containing one of the keywords.
+
+Very easy to parse!
 
 This is extremely helpful for dealing with multiple large files.
 
@@ -17,15 +19,23 @@ Max file descriptors is set to 1024 (linux default).
 Scan this repo for markdown files with `cache=` in them.
 
 ```bash
-$ go run main.go ./ .md cache=
+$ go run main.go -ext=".md" -dir="." -kwd="cache="
 README.md
+```
+
+Or without quotes (if no need to escape anything)
+
+```bash
+go run main.go -ext=.md -dir=. -kwd=cache=
 ```
 
 #### Multiple Keywords and Multiple File Extensions
 
 ```bash
 scnnr (master) $ go run main.go ./ .md,.go fileData,cache
-README.md,cmd/scanner.go,main.go
+README.md,
+cmd/scanner.go
+main.go
 ```
 
 #### Using the package github.com/selfup/scnnr/scnnr
@@ -38,9 +48,9 @@ keywords := []string{"something","something else", "another thing"}
 patterns := []string{".js",".go",".md"}
 
 scanner := scnnr.Scanner{
-  Directory:    directory,
-  FilePatterns: patterns,
-  Keywords:     keywords,
+  Directory:      directory,
+  FileExtensions: patterns,
+  Keywords:       keywords,
 }
 
 err := scanner.Scan()
@@ -52,12 +62,10 @@ if err != nil {
 
 ## Regex
 
-`SCNNR_REGEX=1 go run main.go artifact/ .md,.js cach? > .results`
-
-If you add the `SCNNR_REGEX=1` ENV variable you can then use regex statements instead of raw keywords.
+`go run main.go -ext=".js" -dir="artifact" -kwd="const" -rgx=T > .results`
 
 ```
-scnnr (regex_support) $ time SCNNR_REGEX=1 go run main.go artifact/ .js,.ts,.md 'cons*,let?,var?, impor*, expor*' > .results
+scnnr$ time go run main.go -rgx=T -dir=artifact -ext=.js,.ts,.md -kwd='cons*,let?,var?, impor*, expor*' > .results
 
 real    0m0.748s
 user    0m2.398s
@@ -69,15 +77,16 @@ sys     0m0.311s
 ```go
 import "github.com/selfup/scnnr/scnnr"
 
+rgx := true
 directory := "./artifact"
 keywords := []string{"const PASSW*","password?", "export PASS?"}
-patterns := []string{".js",".ts"}
+extensions := []string{".js",".ts"}
 
 scanner := scnnr.Scanner{
-  Directory:     directory,
-  FilePatterns:  patterns,
-  Keywords:      keywords,
-  RegexKeywords: keywords,
+  Regex:          rgx,
+  Directory:      directory,
+  FileExtensions: extensions,
+  Keywords:       keywords,
 }
 
 err := scanner.Scan()
@@ -97,7 +106,6 @@ No matches on 33k files after `npm i`:
 
 ```
 scnnr (master) $ time go run main.go artifact/ .kt cache
-found 0 matches:
 real    0m0.287s
 user    0m0.235s
 sys     0m0.131s
