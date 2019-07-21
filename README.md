@@ -88,7 +88,7 @@ if err != nil {
 
 ## Regex
 
-`go run main.go -e=".js" -d="artifact" -k="const" -r=T > .results`
+`go run main.go -e=".js" -d="artifact" -k="cons?" -r=T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
 
