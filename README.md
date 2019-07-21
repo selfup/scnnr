@@ -48,7 +48,7 @@ go run main.go -ext=.md -dir=. -kwd=cache=
 
 ```bash
 $ go run main.go ./ .md,.go fileData,cache
-README.md,
+README.md
 cmd/scanner.go
 main.go
 ```
