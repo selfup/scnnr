@@ -14,6 +14,21 @@ Max file descriptors is set to 1024 (linux default).
 
 ## Example
 
+#### Help
+
+```
+scnnr (flags) $ ./main -h
+Usage of ./main:
+  -dir string
+        directory where scnnr will scan
+  -ext string
+        a comma delimted list of file extensions to search
+  -kwd string
+        a comma delimted list of keywords to search for in a file
+  -rgx
+        wether to use the regex engine or not - defaults to false
+```
+
 #### Single Keyword
 
 Scan this repo for markdown files with `cache=` in them.

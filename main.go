@@ -23,7 +23,7 @@ func main() {
 	flag.StringVar(&kwd, "kwd", "", "a comma delimted list of keywords to search for in a file")
 
 	var rgx bool
-	flag.BoolVar(&rgx, "rgx", false, "weather to use the regex engine or not - defaults to false")
+	flag.BoolVar(&rgx, "rgx", false, "wether to use the regex engine or not - defaults to false")
 
 	flag.Parse()
 
