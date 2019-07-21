@@ -51,7 +51,7 @@ func (s *Scanner) Scan() error {
 		wg.Wait()
 	}
 
-	fmt.Printf("%s\n", strings.Join(s.KeywordMatches, "\n"))
+	fmt.Println(strings.Join(s.KeywordMatches, "\n"))
 
 	return nil
 }
