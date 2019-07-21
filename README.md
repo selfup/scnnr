@@ -165,9 +165,9 @@ The amount of file paths results in 1.2MB of text data..
 ```
 $ time go run main.go -dir=artifact -ext=.js,.ts,.md,.css -kwd=const,let,var,import,export > .results
 
-real    0m0.581s
-user    0m1.347s
-sys     0m0.456s
+real    0m0.445s
+user    0m0.924s
+sys     0m0.304s
 $ ls -lahg .results
 -rw-r--r-- 1 selfup 1.2M Jul 21 00:57 .results
 ```
