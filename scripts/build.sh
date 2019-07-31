@@ -2,9 +2,9 @@
 
 set -e
 
-mkdir -p bin/mac
-mkdir -p bin/linux
-mkdir -p bin/windows
+mkdir -p scnnr_bins/mac
+mkdir -p scnnr_bins/linux
+mkdir -p scnnr_bins/windows
 
 if [[ -f main ]]
 then
@@ -17,10 +17,12 @@ then
 fi
 
 CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build main.go
-mv main bin/mac/scnnr
+mv main scnnr_bins/mac/scnnr
 
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build main.go
-mv main bin/linux/scnnr
+mv main scnnr_bins/linux/scnnr
 
 CGO_ENABLED=0 GOOS=windows GOARCH=386 go build main.go
-mv main.exe bin/windows/scnnr.exe
+mv main.exe scnnr_bins/windows/scnnr.exe
+
+chmod +x scnnr_bins/linux/scnnr scnnr_bins/mac/scnnr
