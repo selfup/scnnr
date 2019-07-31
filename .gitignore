@@ -1,7 +1,8 @@
 artifact*
 .results
+bin
 main
 main.exe
 .pdf
 .png
-example
+.DS_Store
