@@ -26,3 +26,11 @@ CGO_ENABLED=0 GOOS=windows GOARCH=386 go build main.go
 mv main.exe scnnr_bins/windows/scnnr.exe
 
 chmod +x scnnr_bins/linux/scnnr scnnr_bins/mac/scnnr
+
+if [[ $CI == 'true' ]]
+then
+  if [[ $VERSION != "" ]]
+  then
+    echo $VERSION > scnnr_bins/version
+  fi
+fi

@@ -1,0 +1,19 @@
+stages:
+  - build
+
+scnnr_bins:
+  only:
+    refs:
+      - master
+
+  stage: build
+
+  image: golang:alpine
+
+  script:
+    - export $VERSION=$CI_PIPELINE_IID
+    - CI=true ./scripts/release.sh
+
+  artifacts:
+    paths:
+      - scnnr_bins.zip
