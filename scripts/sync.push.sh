@@ -14,5 +14,5 @@ else
   git push origin master
 fi
 
-./scnnr/push.release.sh
+./scripts/push.release.sh
 ./scripts/release.sh
