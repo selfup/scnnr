@@ -11,8 +11,8 @@ scnnr_bins:
   image: golang:alpine
 
   script:
-    - export VERSION=$CI_PIPELINE_IID
-    - CI=true ./scripts/release.sh
+    - apk --update add bash && rm -rf /var/cache/apk/*
+    - VERSION=$CI_PIPELINE_IID CI=true ./scripts/release.sh
 
   artifacts:
     paths:
