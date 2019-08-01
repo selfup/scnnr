@@ -1,64 +1,52 @@
 # Scannr
 
-Scans all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
+Scans files (by extension) in a given directory for a keyword. Can be any file, or can be just `.js` or `.js,.html,.jsx`.
 
 Prints out a `\n` delimited string of each file (filepath in artifact) containing one of the keywords.
 
-Very easy to parse!
-
-This is extremely helpful for dealing with multiple large files.
-
-Can be used in a serverless lambda/function to scan hundreds of artifacts at once (one artifact per lambda).
-
 Max file descriptors is set to 1024 (linux default).
 
+## TOC
+
+<!-- toc -->
+
+- [Example](#example)
+  - [Single Keyword](#single-keyword)
+  - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+  - [Help](#help)
+- [Regex](#regex)
+  - [Using Regex Patterns](#using-regex-patterns)
+  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
+- [Install](#install)
+  - [If you have Go](#if-you-have-go)
+  - [If you do not have Go](#if-you-do-not-have-go)
+  - [If you are blocked from downloading from AWS S3](#if-you-are-blocked-from-downloading-from-aws-s3)
+- [Performance](#performance)
+
+<!-- tocstop -->
+
 ## Example
-
-#### Help
-
-Either use the `-h` flag or no flags at all to get help info.
-
-Without the `-h` flag and/or all required args, `scnnr` will exit with a status code of 1:
-
-```
-$ scnnr
-  -d string
-        REQUIRED
-            directory where scnnr will scan
-  -e string
-        REQUIRED
-            a comma delimted list of file extensions to scan
-  -k string
-        REQUIRED
-            a comma delimted list of keywords to search for in a file
-  -r    OPTIONAL
-            wether to use the regex engine or not
-            defaults to false and will not use the regex engine for scans unless set to a truthy value
-            truthy values are: 1, t, T, true, True, TRUE
-            flasey values are: 0, f, F, false, False, FALSE
-
-ERROR - scannr has required arguments - please read above output - exiting..
-```
 
 #### Single Keyword
 
 Scan this repo for markdown files with `cache=` in them.
 
 ```bash
-$ go run main.go -e=".md" -d="." -k="cache="
+$ scnnr -e=".md" -d="." -k="cache="
 README.md
 ```
 
 Or without quotes (if no need to escape anything)
 
 ```bash
-go run main.go -e=.md -d=. -k=cache=
+scnnr -e=.md -d=. -k=cache=
 ```
 
 #### Multiple Keywords and Multiple File Extensions
 
 ```bash
-$ go run main.go -d=. -e=.md,.go -k=fileData,cache
+$ scnnr -d=. -e=.md,.go -k=fileData,cache
 README.md
 cmd/scanner.go
 main.go
@@ -86,16 +74,44 @@ if err != nil {
 }
 ```
 
+#### Help
+
+Either use the `-h` flag or no flags at all to get help info.
+
+Without the `-h` flag and/or all required args, `scnnr` will exit with a status code of 1:
+
+```
+$ scnnr
+  -d string
+        REQUIRED
+            directory where scnnr will scan
+  -e string
+        REQUIRED
+            a comma delimted list of file extensions to scan
+  -k string
+        REQUIRED
+            a comma delimted list of keywords to search for in a file
+  -r    OPTIONAL
+            wether to use the regex engine or not
+            defaults to false and will not use the regex engine for scans unless set to a truthy value
+            truthy values are: 1, t, T, true, True, TRUE
+            flasey values are: 0, f, F, false, False, FALSE
+
+ERROR - scannr has required arguments - please read above output - exiting..
+```
+
 ## Regex
 
-`go run main.go -e=".js" -d="artifact" -k="cons?" -r=T > .results`
+#### Using Regex Patterns
+
+`scnnr -e=".js" -d="artifact" -k="cons?" -r=T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
 
 `t, T, 1, true, True, TRUE`
 
 ```
-scnnr $ time go run main.go -r=1 -d=artifact -e=.js,.ts,.md -k='cons*,let?,var?, impor*, expor*' > .results
+scnnr $ time scnnr -r=1 -d=artifact -e=.js,.ts,.md -k='cons*,let?,var?, impor*, expor*' > .results
 
 real    0m0.748s
 user    0m2.398s
@@ -126,6 +142,35 @@ if err != nil {
 }
 ```
 
+## Install
+
+#### If you have Go
+
+```bash
+go get github.com/selfup/scnnr
+go install github.com/selfup/scnnr
+```
+
+#### If you do not have Go
+
+Check the [Releases](https://github.com/selfup/scnnr/releases) tab (on GitHub) and download the `scnnr_bins.zip`.
+
+Instructions are there.
+
+#### If you are blocked from downloading from AWS S3
+
+You can download the latest artifact from the [GitLab Repo](https://gitlab.com/selfup/scnnr)
+
+![gitlabartifactsscnnr](https://user-images.githubusercontent.com/9837366/62293036-4bd09680-b42d-11e9-88d1-584df5f38613.png)
+
+**OR**
+
+Check the latest pipeline and download the artifact there
+
+[Pipeplines](https://gitlab.com/selfup/scnnr/pipelines?ref=master)
+
+![pipelinesartifact](https://user-images.githubusercontent.com/9837366/62293199-a964e300-b42d-11e9-81ea-5c159ae5ea77.png)
+
 ## Performance
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
@@ -135,7 +180,7 @@ Memory in the following example never went above 5.5MB for the entire program.
 No matches on 33k files after `npm i` for a JavaScript project as the `artifact`:
 
 ```
-$ time go run main.go -d=artifact -e=.kt -k=cache
+$ time scnnr -d=artifact -e=.kt -k=cache
 
 
 real    0m0.289s
@@ -146,7 +191,7 @@ sys     0m0.138s
 33k files, two file types, one keyword, and 567 matches. _Not all 567 matches displayed in README_:
 
 ```
-$ time go run main.go -d=artifact -e=.md,.js -k=cache > .results
+$ time scnnr -d=artifact -e=.md,.js -k=cache > .results
 
 real    0m0.435s
 user    0m0.843s
@@ -158,7 +203,7 @@ $ ls -lahg .results
 33k files, two file types, 5 keywords, and 360 matches. _Not all 360 matches displayed in README_:
 
 ```
-$ time go run main.go -d=artifact -e=.js,.md -k=stuff,things,wow,lol,omg > .results
+$ time scnnr -d=artifact -e=.js,.md -k=stuff,things,wow,lol,omg > .results
 
 real    0m0.450s
 user    0m1.016s
@@ -174,7 +219,7 @@ Results are piped into a file to reduce noise.
 The amount of file paths results in 1.2MB of text data..
 
 ```
-$ time go run main.go -d=artifact -e=.js,.ts,.md,.css -k=const,let,var,import,export > .results
+$ time scnnr -d=artifact -e=.js,.ts,.md,.css -k=const,let,var,import,export > .results
 
 real    0m0.445s
 user    0m0.924s
