@@ -40,6 +40,34 @@ $ scnnr
 ERROR - scannr has required arguments - please read above output - exiting..
 ```
 
+#### Install
+
+If you have Go:
+
+```bash
+go get github.com/selfup/scnnr && go install github.com/selfup/scnnr
+```
+
+If you do not have Go:
+
+Check the [Releases](https://github.com/selfup/scnnr/releases) tab (on GitHub) and download the `scnnr_bins.zip`.
+
+Instructions are there.
+
+**If you are blocked from downloading from AWS S3:**
+
+You can download the latest artifact from the [GitLab Repo](https://gitlab.com/selfup/scnnr)
+
+![gitlabartifactsscnnr](https://user-images.githubusercontent.com/9837366/62293036-4bd09680-b42d-11e9-88d1-584df5f38613.png)
+
+**OR**
+
+Check the latest pipeline and download the artifact there
+
+[Pipeplines](https://gitlab.com/selfup/scnnr/pipelines?ref=master)
+
+![pipelinesartifact](https://user-images.githubusercontent.com/9837366/62293199-a964e300-b42d-11e9-81ea-5c159ae5ea77.png)
+
 #### Single Keyword
 
 Scan this repo for markdown files with `cache=` in them.
