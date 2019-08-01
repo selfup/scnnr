@@ -11,9 +11,9 @@ scnnr_bins:
   image: golang:alpine
 
   script:
-    - apk --update add git bash zip && rm -rf /var/cache/apk/*
-    - go get github.com/selfup/scnnr
-    - VERSION=$CI_PIPELINE_IID CI=true ./scripts/release.sh
+    - apk --update add git && rm -rf /var/cache/apk/*
+    - ls -R .
+    - VERSION=$CI_PIPELINE_IID CI=true go run cmd/release/main.go 
 
   artifacts:
     paths:

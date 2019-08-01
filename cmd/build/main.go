@@ -38,11 +38,15 @@ func main() {
 
 	if ci != "" && version != "" {
 		versionNumber := []byte(version + "\n")
+
 		err := ioutil.WriteFile("scnnr_bins/version", versionNumber, 0777)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+
+	cp("README.md", "scnnr_bins/README.md")
+	cp("LICENSE", "scnnr_bins/LICENSE")
 }
 
 func compile(goos string, arch string) {
@@ -63,6 +67,18 @@ func compile(goos string, arch string) {
 
 func mv(old string, new string) {
 	err := os.Rename(old, new)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func cp(source string, destination string) {
+	input, err := ioutil.ReadFile(source)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(destination, input, 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
