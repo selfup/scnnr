@@ -1,22 +1,30 @@
 # Scannr
 
-- [Example](##Example)
-  - [Help](####Help)
-- [Regex](##Regex)
-- [Install](##Install)
-- [Performance](##Performance)
-
-Scans all files in a given directory for a keyword. Can be any file, or can be just `.js` or `".js,.html,.jsx"`.
+Scans files (by extension) in a given directory for a keyword. Can be any file, or can be just `.js` or `.js,.html,.jsx`.
 
 Prints out a `\n` delimited string of each file (filepath in artifact) containing one of the keywords.
 
-Very easy to parse!
-
-This is extremely helpful for dealing with multiple large files.
-
-Can be used in a serverless lambda/function to scan hundreds of artifacts at once (one artifact per lambda).
-
 Max file descriptors is set to 1024 (linux default).
+
+## TOC
+
+<!-- toc -->
+
+- [Example](#example)
+  - [Single Keyword](#single-keyword)
+  - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+  - [Help](#help)
+- [Regex](#regex)
+  - [Using Regex Patterns](#using-regex-patterns)
+  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
+- [Install](#install)
+  - [If you have Go](#if-you-have-go)
+  - [If you do not have Go](#if-you-do-not-have-go)
+  - [If you are blocked from downloading from AWS S3](#if-you-are-blocked-from-downloading-from-aws-s3)
+- [Performance](#performance)
+
+<!-- tocstop -->
 
 ## Example
 
@@ -94,6 +102,8 @@ ERROR - scannr has required arguments - please read above output - exiting..
 
 ## Regex
 
+#### Using Regex Patterns
+
 `scnnr -e=".js" -d="artifact" -k="cons?" -r=T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
@@ -134,20 +144,20 @@ if err != nil {
 
 ## Install
 
-If you have Go:
+#### If you have Go
 
 ```bash
 go get github.com/selfup/scnnr
 go install github.com/selfup/scnnr
 ```
 
-If you do not have Go:
+#### If you do not have Go
 
 Check the [Releases](https://github.com/selfup/scnnr/releases) tab (on GitHub) and download the `scnnr_bins.zip`.
 
 Instructions are there.
 
-**If you are blocked from downloading from AWS S3:**
+#### If you are blocked from downloading from AWS S3
 
 You can download the latest artifact from the [GitLab Repo](https://gitlab.com/selfup/scnnr)
 
