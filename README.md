@@ -55,7 +55,9 @@ main.go
 #### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
-import "github.com/selfup/scnnr/scnnr"
+import (
+  scnnr "github.com/selfup/scnnr/pkg"
+)
 
 directory := "./artifact"
 keywords := []string{"something","something else", "another thing"}
@@ -121,7 +123,9 @@ sys     0m0.311s
 #### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
-import "github.com/selfup/scnnr/scnnr"
+import (
+  scnnr "github.com/selfup/scnnr/pkg"
+)
 
 rgx := true
 directory := "./artifact"

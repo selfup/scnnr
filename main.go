@@ -31,7 +31,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/selfup/scnnr/scnnr"
+	scnnr "github.com/selfup/scnnr/pkg"
 )
 
 func main() {
@@ -62,7 +62,7 @@ func main() {
 
 	if dir == "" && kwd == "" && ext == "" {
 		flag.PrintDefaults()
-		fmt.Print("\nERROR - scannr has required arguments - please read above output - exiting..\n\n")
+		fmt.Print("\nERROR - scnnr has required arguments - please read above output - exiting..\n\n")
 		os.Exit(1)
 	}
 
