@@ -12,6 +12,7 @@ scnnr_bins:
 
   script:
     - apk --update add git && rm -rf /var/cache/apk/*
+    - go get github.com/selfup/scnnr
     - ls -R .
     - VERSION=$CI_PIPELINE_IID CI=true go run cmd/release/main.go 
 
