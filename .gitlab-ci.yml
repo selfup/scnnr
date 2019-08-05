@@ -14,10 +14,9 @@ scnnr_bins:
     - docker:dind
 
   script:
-    - docker build -t scnnr_release . --build-arg CI=true --build-arg VERSION=$CI_PIPELINE_IID
-    - docker cp scnnr_release:/scnnr_bins.zip scnnr_bins.zip
-    - chmod +x scnnr_bins.zip
-  
+    - ./scripts/chmod.sh
+    - ./scripts/dind.build.sh
+
   artifacts:
     paths:
       - scnnr_bins.zip

@@ -2,8 +2,12 @@ FROM golang:alpine
 
 ENV SCNNR src/github.com/selfup/scnnr
 
+RUN mkdir -p go/src/github.com/selfup/scnnr
+
 COPY . $GOPATH/$SCNNR
 
-RUN cd $GOPATH/$SCNNR \
-  && go run cmd/release/main.go \
-  && cp scnnr_bins.zip $HOME/scnnr_bins.zip
+WORKDIR $GOPATH/$SCNNR
+
+RUN go run cmd/release/main.go
+
+CMD ["sleep", "1m"]
