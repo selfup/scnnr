@@ -1,0 +1,10 @@
+artifact*
+.results
+main
+main.exe
+.pdf
+.png
+.DS_Store
+scnnr_bins.zip
+scnnr_bins
+version

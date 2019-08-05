@@ -8,13 +8,14 @@ scnnr_bins:
 
   stage: build
 
-  image: golang:alpine
+  image: docker:stable
+
+  services:
+    - docker:dind
 
   script:
-    - apk --update add git && rm -rf /var/cache/apk/*
-    - go get github.com/selfup/scnnr
-    - ls -R .
-    - VERSION=$CI_PIPELINE_IID CI=true go run cmd/release/main.go 
+    - ./scripts/chmod.sh
+    - ./scripts/dind.build.sh
 
   artifacts:
     paths:
