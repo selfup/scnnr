@@ -1,7 +1,3 @@
-#!/usr/bin/env bash
-
-set -e
-
 docker build -t scnnr_release . \
   --build-arg CI=true \
   --build-arg VERSION=$CI_PIPELINE_IID
