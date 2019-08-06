@@ -163,7 +163,17 @@ Instructions are there.
 
 #### If you are blocked from downloading from AWS S3
 
-Direct link for latest `scnnr_bins.zip` in GitLab: https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins
+[Direct link (GitLab)](https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins)
+
+Example download script:
+
+```bash
+wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins -O artifacts.zip \
+  && unzip artifacts.zip \
+  && unzip scnnr_bins.zip \
+  && rm artifacts.zip scnnr_bins.zip \
+  && ls -R scnnr_bins
+```
 
 **OR**
 
