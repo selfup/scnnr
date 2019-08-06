@@ -13,8 +13,4 @@ echo "stopping $LATEST"
 
 docker stop $LATEST
 
-echo "stopped"
-
-chmod +x scnnr_bins.zip
-
 echo "release done"
