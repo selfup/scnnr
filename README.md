@@ -10,19 +10,20 @@ Max file descriptors is set to 1024 (linux default).
 
 <!-- toc -->
 
-- [Example](#example)
-  - [Single Keyword](#single-keyword)
-  - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
-  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
-  - [Help](#help)
-- [Regex](#regex)
-  - [Using Regex Patterns](#using-regex-patterns)
-  - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
-- [Install](#install)
-  - [If you have Go](#if-you-have-go)
-  - [If you do not have Go](#if-you-do-not-have-go)
-  - [If you are blocked from downloading from AWS S3](#if-you-are-blocked-from-downloading-from-aws-s3)
-- [Performance](#performance)
+- [Scannr](#scannr)
+  - [TOC](#toc)
+  - [Example](#example)
+    - [Single Keyword](#single-keyword)
+    - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+    - [Help](#help)
+  - [Regex](#regex)
+    - [Using Regex Patterns](#using-regex-patterns)
+    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
+  - [Install](#install)
+    - [If you have Go](#if-you-have-go)
+    - [If you do not have Go](#if-you-do-not-have-go)
+  - [Performance](#performance)
 
 <!-- tocstop -->
 
