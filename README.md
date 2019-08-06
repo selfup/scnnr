@@ -158,6 +158,8 @@ go install github.com/selfup/scnnr
 
 #### If you do not have Go
 
+I have a [GitLab Release Repo](https://gitlab.com/selfup/scnnr) that builds the needed artifacts using [GitLabCI](https://docs.gitlab.com/ee/ci/quick_start/)
+
 ```bash
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins -O artifacts.zip
 ```
