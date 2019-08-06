@@ -1,6 +1,4 @@
-docker build -t scnnr_release . \
-  --build-arg CI=true \
-  --build-arg VERSION=$CI_PIPELINE_IID
+docker build -t scnnr_release . --build-arg CI=true --build-arg VERSION=$CI_PIPELINE_IID
 
 LATEST=$(docker run -td scnnr_release:latest)
 REL_PATH="go/src/github.com/selfup/scnnr/scnnr_bins.zip"
