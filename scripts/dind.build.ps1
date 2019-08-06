@@ -5,7 +5,7 @@ $REL_PATH = "go/src/github.com/selfup/scnnr/scnnr_bins.zip"
 
 docker cp "${LATEST}:${REL_PATH}" scnnr_bins.zip
 
-ls scnnr_bins.zip
+Get-ChildItem scnnr_bins.zip
 
 Write-Output "stopping $LATEST"
 
