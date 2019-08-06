@@ -157,16 +157,6 @@ go install github.com/selfup/scnnr
 
 #### If you do not have Go
 
-Check the [Releases](https://github.com/selfup/scnnr/releases) tab (on GitHub) and download the `scnnr_bins.zip`.
-
-Instructions are there.
-
-#### If you are blocked from downloading from AWS S3
-
-[Direct link (GitLab)](https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins)
-
-Example download script:
-
 ```bash
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins -O artifacts.zip \
   && unzip artifacts.zip \
@@ -174,20 +164,6 @@ wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_
   && rm artifacts.zip scnnr_bins.zip \
   && ls -R scnnr_bins
 ```
-
-**OR**
-
-You can download the latest artifact from the [GitLab Repo](https://gitlab.com/selfup/scnnr)
-
-![gitlabartifactsscnnr](https://user-images.githubusercontent.com/9837366/62293036-4bd09680-b42d-11e9-88d1-584df5f38613.png)
-
-**OR**
-
-Check the latest pipeline and download the artifact there
-
-[Pipelines](https://gitlab.com/selfup/scnnr/pipelines?ref=master)
-
-![pipelinesartifact](https://user-images.githubusercontent.com/9837366/62293199-a964e300-b42d-11e9-81ea-5c159ae5ea77.png)
 
 ## Performance
 
@@ -199,7 +175,6 @@ No matches on 33k files after `npm i` for a JavaScript project as the `artifact`
 
 ```
 $ time scnnr -d=artifact -e=.kt -k=cache
-
 
 real    0m0.289s
 user    0m0.241s
