@@ -161,10 +161,10 @@ go install github.com/selfup/scnnr
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins -O artifacts.zip
 ```
 
-1. Unzip artifacts.zip
-1. Unzip scnnr_bins.zip
+1. Unzip `artifacts.zip`
+1. Unzip `scnnr_bins.zip`
 
-From here pick your arch (mac/windows/linux) and appropriate bin and move to needed path!
+From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
 
 ```
 scnnr_bins/linux:
