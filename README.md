@@ -163,6 +163,10 @@ Instructions are there.
 
 #### If you are blocked from downloading from AWS S3
 
+Direct link for latest `scnnr_bins.zip` in GitLab: https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins
+
+**OR**
+
 You can download the latest artifact from the [GitLab Repo](https://gitlab.com/selfup/scnnr)
 
 ![gitlabartifactsscnnr](https://user-images.githubusercontent.com/9837366/62293036-4bd09680-b42d-11e9-88d1-584df5f38613.png)
@@ -171,7 +175,7 @@ You can download the latest artifact from the [GitLab Repo](https://gitlab.com/s
 
 Check the latest pipeline and download the artifact there
 
-[Pipeplines](https://gitlab.com/selfup/scnnr/pipelines?ref=master)
+[Pipelines](https://gitlab.com/selfup/scnnr/pipelines?ref=master)
 
 ![pipelinesartifact](https://user-images.githubusercontent.com/9837366/62293199-a964e300-b42d-11e9-81ea-5c159ae5ea77.png)
 
