@@ -165,6 +165,19 @@ wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_
   && ls -R scnnr_bins
 ```
 
+From here pick your arch (mac/windows/linux) and appropriate bin and move to needed path!
+
+```
+scnnr_bins/linux:
+scnnr
+
+scnnr_bins/mac:
+scnnr
+
+scnnr_bins/windows:
+scnnr.exe
+```
+
 ## Performance
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
