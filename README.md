@@ -160,7 +160,17 @@ go install github.com/selfup/scnnr
 
 I have a [GitLab Release Repo](https://gitlab.com/selfup/scnnr) that builds the needed artifacts using [GitLabCI](https://docs.gitlab.com/ee/ci/quick_start/)
 
-Direct Link: https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release
+**1. Direct Link**
+
+https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release
+
+**2. cURL**
+
+```bash
+curl -L https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release > artifacts.zip
+```
+
+**3. wget**
 
 ```bash
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release -O artifacts.zip
