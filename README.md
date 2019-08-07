@@ -161,10 +161,11 @@ go install github.com/selfup/scnnr
 I have a [GitLab Release Repo](https://gitlab.com/selfup/scnnr) that builds the needed artifacts using [GitLabCI](https://docs.gitlab.com/ee/ci/quick_start/)
 
 ```bash
-wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_bins -O artifacts.zip
+wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release -O artifacts.zip
 ```
 
 1. Unzip `artifacts.zip`
+1. Unzip `scnnr_bins.zip`
 
 From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
 

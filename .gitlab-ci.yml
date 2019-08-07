@@ -15,8 +15,7 @@ release:
 
   script:
     - ./scripts/dind.build.sh
-    - ls -lahg
 
   artifacts:
     paths:
-      - scnnr_bins
+      - scnnr_bins.zip
