@@ -18,4 +18,4 @@ scnnr_bins:
 
   artifacts:
     paths:
-      - scnnr_bins.zip
+      - scnnr_bins

@@ -165,7 +165,6 @@ wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=scnnr_
 ```
 
 1. Unzip `artifacts.zip`
-1. Unzip `scnnr_bins.zip`
 
 From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
 
