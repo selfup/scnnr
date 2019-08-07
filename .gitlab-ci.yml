@@ -1,7 +1,7 @@
 stages:
   - build
 
-scnnr_bins:
+release:
   only:
     refs:
       - master
