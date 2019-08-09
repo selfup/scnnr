@@ -151,7 +151,7 @@ if err != nil {
 #### If you have Go
 
 ```bash
-go get github.com/selfup/scnnr
+go get -u github.com/selfup/scnnr
 go install github.com/selfup/scnnr
 ```
 
