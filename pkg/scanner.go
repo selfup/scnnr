@@ -36,8 +36,6 @@ func (s *Scanner) Scan() error {
 		return err
 	}
 
-	fmt.Println("matched files length", len(s.MatchedFilePaths))
-
 	if s.NoKeywords {
 		var foundFiles []string
 
