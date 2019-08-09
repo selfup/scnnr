@@ -50,7 +50,6 @@ scnnr -e=.md -d=. -k=cache=
 $ scnnr -d=. -e=.md,.go -k=fileData,cache
 README.md
 cmd/scanner.go
-main.go
 ```
 
 #### Using the package github.com/selfup/scnnr/scnnr
