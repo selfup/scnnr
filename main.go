@@ -49,12 +49,20 @@ func main() {
 
 	var kwd string
 	flag.StringVar(&kwd, "k", "", `REQUIRED
-    a comma delimted list of keywords to search for in a file`)
+	a comma delimted list of keywords to search for in a file`)
 
 	var rgx bool
 	flag.BoolVar(&rgx, "r", false, `OPTIONAL
     wether to use the regex engine or not
     defaults to false and will not use the regex engine for scans unless set to a truthy value
+    truthy values are: 1, t, T, true, True, TRUE
+    flasey values are: 0, f, F, false, False, FALSE`)
+
+	var nok bool
+	flag.BoolVar(&nok, "n", false, `OPTIONAL
+    wether to search for keywords or not
+    defaults to false
+	  if true - files will not be scanned - all paths will be returned
     truthy values are: 1, t, T, true, True, TRUE
     flasey values are: 0, f, F, false, False, FALSE`)
 
@@ -73,6 +81,7 @@ func main() {
 	scanner := scnnr.Scanner{
 		Regex:          rgx,
 		Keywords:       keywords,
+		NoKeywords:     nok,
 		Directory:      directory,
 		FileExtensions: extensions,
 	}

@@ -84,7 +84,7 @@ Either use the `-h` flag or no flags at all to get help info.
 Without the `-h` flag and/or all required args, `scnnr` will exit with a status code of 1:
 
 ```
-$ scnnr
+$ scnnr -h
   -d string
         REQUIRED
             directory where scnnr will scan
@@ -93,14 +93,18 @@ $ scnnr
             a comma delimted list of file extensions to scan
   -k string
         REQUIRED
-            a comma delimted list of keywords to search for in a file
+                a comma delimted list of keywords to search for in a file
+  -n    OPTIONAL
+            wether to search for keywords or not
+            defaults to false
+                  if true - files will not be scanned - all paths will be returned
+            truthy values are: 1, t, T, true, True, TRUE
+            flasey values are: 0, f, F, false, False, FALSE
   -r    OPTIONAL
             wether to use the regex engine or not
             defaults to false and will not use the regex engine for scans unless set to a truthy value
             truthy values are: 1, t, T, true, True, TRUE
             flasey values are: 0, f, F, false, False, FALSE
-
-ERROR - scannr has required arguments - please read above output - exiting..
 ```
 
 ## Regex

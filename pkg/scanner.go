@@ -15,6 +15,7 @@ import (
 type Scanner struct {
 	sync.Mutex
 	Regex            bool
+	NoKeywords       bool
 	Directory        string
 	FileExtensions   []string
 	Keywords         []string
@@ -35,20 +36,32 @@ func (s *Scanner) Scan() error {
 		return err
 	}
 
-	var wg sync.WaitGroup
+	fmt.Println("matched files length", len(s.MatchedFilePaths))
 
-	for _, chunk := range eachSlice(s.MatchedFilePaths) {
-		matchedCount := len(chunk)
-		wg.Add(matchedCount)
+	if s.NoKeywords {
+		var foundFiles []string
 
-		for _, match := range chunk {
-			go func(m FileData) {
-				s.parse(m)
-				wg.Done()
-			}(match)
+		for _, fileInfo := range s.MatchedFilePaths {
+			foundFiles = append(foundFiles, fileInfo.Path)
 		}
 
-		wg.Wait()
+		fmt.Println(strings.Join(foundFiles, "\n"))
+	} else {
+		var wg sync.WaitGroup
+
+		for _, chunk := range eachSlice(s.MatchedFilePaths) {
+			matchedCount := len(chunk)
+			wg.Add(matchedCount)
+
+			for _, match := range chunk {
+				go func(m FileData) {
+					s.parse(m)
+					wg.Done()
+				}(match)
+			}
+
+			wg.Wait()
+		}
 	}
 
 	fmt.Println(strings.Join(s.KeywordMatches, "\n"))
