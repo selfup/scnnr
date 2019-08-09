@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Scannr](#scannr)
+  - [Example](#example)
+    - [No Keywords](#no-keywords)
+    - [Single Keyword](#single-keyword)
+    - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+    - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
+    - [Help](#help)
+  - [Regex](#regex)
+    - [Using Regex Patterns](#using-regex-patterns)
+    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+  - [Install](#install)
+    - [If you have Go](#if-you-have-go)
+    - [If you do not have Go](#if-you-do-not-have-go)
+  - [Performance](#performance)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Scannr
 
 Scans files (by extension) in a given directory for a keyword. Can be any file, or can be just `.js` or `.js,.html,.jsx`.
@@ -6,28 +26,18 @@ Prints out a `\n` delimited string of each file (filepath in artifact) containin
 
 Max file descriptors is set to 1024 (linux default).
 
-## TOC
-
-<!-- toc -->
-
-- [Scannr](#scannr)
-  - [TOC](#toc)
-  - [Example](#example)
-    - [Single Keyword](#single-keyword)
-    - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
-    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
-    - [Help](#help)
-  - [Regex](#regex)
-    - [Using Regex Patterns](#using-regex-patterns)
-    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
-  - [Install](#install)
-    - [If you have Go](#if-you-have-go)
-    - [If you do not have Go](#if-you-do-not-have-go)
-  - [Performance](#performance)
-
-<!-- tocstop -->
-
 ## Example
+
+#### No Keywords
+
+If you just want to scan for file paths
+
+```bash
+$ scnnr -e=.md -d=. -n=T
+README.md
+```
+
+The `-n` flag means NoKeywords.
 
 #### Single Keyword
 
@@ -52,7 +62,7 @@ README.md
 cmd/scanner.go
 ```
 
-#### Using the package github.com/selfup/scnnr/scnnr
+#### Using the package github.com/selfup/scnnr/pkg
 
 ```go
 import (
