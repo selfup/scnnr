@@ -93,11 +93,11 @@ $ scnnr -h
             a comma delimted list of file extensions to scan
   -k string
         REQUIRED
-                a comma delimted list of keywords to search for in a file
+            a comma delimted list of keywords to search for in a file
   -n    OPTIONAL
             wether to search for keywords or not
             defaults to false
-                  if true - files will not be scanned - all paths will be returned
+            if true - files will not be scanned - all paths will be returned
             truthy values are: 1, t, T, true, True, TRUE
             flasey values are: 0, f, F, false, False, FALSE
   -r    OPTIONAL
