@@ -49,7 +49,7 @@ func main() {
 
 	var kwd string
 	flag.StringVar(&kwd, "k", "", `REQUIRED
-	a comma delimted list of keywords to search for in a file`)
+    a comma delimted list of keywords to search for in a file`)
 
 	var rgx bool
 	flag.BoolVar(&rgx, "r", false, `OPTIONAL
@@ -62,7 +62,7 @@ func main() {
 	flag.BoolVar(&nok, "n", false, `OPTIONAL
     wether to search for keywords or not
     defaults to false
-	  if true - files will not be scanned - all paths will be returned
+    if true - files will not be scanned - all paths will be returned
     truthy values are: 1, t, T, true, True, TRUE
     flasey values are: 0, f, F, false, False, FALSE`)
 
