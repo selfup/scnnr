@@ -11,7 +11,7 @@
     - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
   - [Regex](#regex)
     - [Using Regex Patterns](#using-regex-patterns)
-    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+    - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg-1)
   - [Install](#install)
     - [If you have Go](#if-you-have-go)
     - [If you do not have Go](#if-you-do-not-have-go)
@@ -140,7 +140,7 @@ user    0m2.398s
 sys     0m0.311s
 ```
 
-### Using the package github.com/selfup/scnnr/scnnr
+### Using the package github.com/selfup/scnnr/pkg
 
 ```go
 import (
