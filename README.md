@@ -1,6 +1,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Scannr](#scannr)
   - [Examples](#examples)
     - [Help](#help)
@@ -14,6 +15,11 @@
   - [Install](#install)
     - [If you have Go](#if-you-have-go)
     - [If you do not have Go](#if-you-do-not-have-go)
+      - [Release Binaries](#release-binaries)
+      - [Direct Download Link](#direct-download-link)
+      - [cURL](#curl)
+      - [wget](#wget)
+      - [Docker](#docker)
   - [Performance](#performance)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -28,7 +34,7 @@ Max file descriptors is set to 1024 (linux default).
 
 ## Examples
 
-#### Help
+### Help
 
 Call scnnr with the `-h` flag:
 
@@ -54,7 +60,7 @@ $ scnnr -h
             flasey values are: 0, f, F, false, False, FALSE
 ```
 
-#### No Keywords
+### No Keywords
 
 If you just want to scan for file paths
 
@@ -67,7 +73,7 @@ Do not provide any keywords and scnnr will return all given filepaths matching g
 
 If no extensions are given, all filepaths will be returned in the scanned directory.
 
-#### Single Keyword
+### Single Keyword
 
 Scan this repo for markdown files with the keyword `cache=` in them.
 
@@ -84,7 +90,7 @@ _Without quotes (if no need to escape anything)_
 scnnr -e=.md -d=. -k=cache=
 ```
 
-#### Multiple Keywords and Multiple File Extensions
+### Multiple Keywords and Multiple File Extensions
 
 ```bash
 $ scnnr -d=. -e=.md,.go -k=fileData,cache
@@ -92,7 +98,7 @@ README.md
 cmd/scanner.go
 ```
 
-#### Using the package github.com/selfup/scnnr/pkg
+### Using the package github.com/selfup/scnnr/pkg
 
 ```go
 import (
@@ -118,7 +124,7 @@ if err != nil {
 
 ## Regex
 
-#### Using Regex Patterns
+### Using Regex Patterns
 
 `scnnr -e=".js" -d="artifact" -k="cons?" -r=T > .results`
 
@@ -134,7 +140,7 @@ user    0m2.398s
 sys     0m0.311s
 ```
 
-#### Using the package github.com/selfup/scnnr/scnnr
+### Using the package github.com/selfup/scnnr/scnnr
 
 ```go
 import (
@@ -162,30 +168,30 @@ if err != nil {
 
 ## Install
 
-#### If you have Go
+### If you have Go
 
 ```bash
 go get -u github.com/selfup/scnnr
 go install github.com/selfup/scnnr
 ```
 
-#### If you do not have Go
+### If you do not have Go
 
-**Release Binaries**
+#### Release Binaries
 
 I have a [GitLab Release Repo](https://gitlab.com/selfup/scnnr) that builds the needed artifacts using [GitLabCI](https://docs.gitlab.com/ee/ci/quick_start/)
 
-**1. Direct Link**
+#### Direct Download Link
 
 https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release
 
-**2. cURL**
+#### cURL
 
 ```bash
 curl -L https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release > artifacts.zip
 ```
 
-**3. wget**
+#### wget
 
 ```bash
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release -O artifacts.zip
@@ -207,7 +213,7 @@ scnnr_bins/windows:
 scnnr.exe
 ```
 
-**Docker**
+#### Docker
 
 1. Clone repo: `git clone https://github.com/selfup/scnnr`
 1. `cd` into repo
