@@ -2,12 +2,12 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Scannr](#scannr)
-  - [Example](#example)
+  - [Examples](#examples)
+    - [Help](#help)
     - [No Keywords](#no-keywords)
     - [Single Keyword](#single-keyword)
     - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
     - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
-    - [Help](#help)
   - [Regex](#regex)
     - [Using Regex Patterns](#using-regex-patterns)
     - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
@@ -26,7 +26,33 @@ Prints out a `\n` delimited string of each file (filepath in artifact) containin
 
 Max file descriptors is set to 1024 (linux default).
 
-## Example
+## Examples
+
+#### Help
+
+Call scnnr with the `-h` flag:
+
+```
+$ scnnr -h
+  -d string
+        OPTIONAL
+            directory where scnnr will scan
+            default is current directory and all child directories (default ".")
+  -e string
+        OPTIONAL
+            a comma delimted list of file extensions to scan
+            if none are given all files will be searched
+  -k string
+        OPTIONAL
+            a comma delimted list of characters to look for in a file
+            if no keywords are given - all file paths of given file extensions will be returned
+            if keywords are given only filepaths of matches will be returned
+  -r    OPTIONAL
+            wether to use the regex engine or not
+            defaults to false and will not use the regex engine for scans unless set to a truthy value
+            truthy values are: 1, t, T, true, True, TRUE
+            flasey values are: 0, f, F, false, False, FALSE
+```
 
 #### No Keywords
 
@@ -88,32 +114,6 @@ err := scanner.Scan()
 if err != nil {
   log.Fatal(err)
 }
-```
-
-#### Help
-
-Call scnnr with the `-h` flag:
-
-```
-$ scnnr -h
-  -d string
-        OPTIONAL
-            directory where scnnr will scan
-            default is current directory and all child directories (default ".")
-  -e string
-        OPTIONAL
-            a comma delimted list of file extensions to scan
-            if none are given all files will be searched
-  -k string
-        OPTIONAL
-            a comma delimted list of characters to look for in a file
-            if no keywords are given - all file paths of given file extensions will be returned
-            if keywords are given only filepaths of matches will be returned
-  -r    OPTIONAL
-            wether to use the regex engine or not
-            defaults to false and will not use the regex engine for scans unless set to a truthy value
-            truthy values are: 1, t, T, true, True, TRUE
-            flasey values are: 0, f, F, false, False, FALSE
 ```
 
 ## Regex
