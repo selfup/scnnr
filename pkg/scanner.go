@@ -35,20 +35,30 @@ func (s *Scanner) Scan() error {
 		return err
 	}
 
-	var wg sync.WaitGroup
+	if len(s.Keywords) == 0 {
+		var foundFiles []string
 
-	for _, chunk := range eachSlice(s.MatchedFilePaths) {
-		matchedCount := len(chunk)
-		wg.Add(matchedCount)
-
-		for _, match := range chunk {
-			go func(m FileData) {
-				s.parse(m)
-				wg.Done()
-			}(match)
+		for _, fileInfo := range s.MatchedFilePaths {
+			foundFiles = append(foundFiles, fileInfo.Path)
 		}
 
-		wg.Wait()
+		fmt.Println(strings.Join(foundFiles, "\n"))
+	} else {
+		var wg sync.WaitGroup
+
+		for _, chunk := range eachSlice(s.MatchedFilePaths) {
+			matchedCount := len(chunk)
+			wg.Add(matchedCount)
+
+			for _, match := range chunk {
+				go func(m FileData) {
+					s.parse(m)
+					wg.Done()
+				}(match)
+			}
+
+			wg.Wait()
+		}
 	}
 
 	fmt.Println(strings.Join(s.KeywordMatches, "\n"))
@@ -61,12 +71,16 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
-	for _, pattern := range s.FileExtensions {
-		if !info.IsDir() {
-			fileExtension := filepath.Ext(path)
+	if !info.IsDir() {
+		if len(s.FileExtensions) == 0 {
+			s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
+		} else {
+			for _, pattern := range s.FileExtensions {
+				fileExtension := filepath.Ext(path)
 
-			if fileExtension == pattern {
-				s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
+				if fileExtension == pattern {
+					s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
+				}
 			}
 		}
 	}

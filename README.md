@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Scannr](#scannr)
+  - [Examples](#examples)
+    - [Help](#help)
+    - [No Keywords](#no-keywords)
+    - [Single Keyword](#single-keyword)
+    - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+    - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
+  - [Regex](#regex)
+    - [Using Regex Patterns](#using-regex-patterns)
+    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
+  - [Install](#install)
+    - [If you have Go](#if-you-have-go)
+    - [If you do not have Go](#if-you-do-not-have-go)
+  - [Performance](#performance)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Scannr
 
 Scans files (by extension) in a given directory for a keyword. Can be any file, or can be just `.js` or `.js,.html,.jsx`.
@@ -6,39 +26,59 @@ Prints out a `\n` delimited string of each file (filepath in artifact) containin
 
 Max file descriptors is set to 1024 (linux default).
 
-## TOC
+## Examples
 
-<!-- toc -->
+#### Help
 
-- [Scannr](#scannr)
-  - [TOC](#toc)
-  - [Example](#example)
-    - [Single Keyword](#single-keyword)
-    - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
-    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr)
-    - [Help](#help)
-  - [Regex](#regex)
-    - [Using Regex Patterns](#using-regex-patterns)
-    - [Using the package github.com/selfup/scnnr/scnnr](#using-the-package-githubcomselfupscnnrscnnr-1)
-  - [Install](#install)
-    - [If you have Go](#if-you-have-go)
-    - [If you do not have Go](#if-you-do-not-have-go)
-  - [Performance](#performance)
+Call scnnr with the `-h` flag:
 
-<!-- tocstop -->
+```
+$ scnnr -h
+  -d string
+        OPTIONAL
+            directory where scnnr will scan
+            default is current directory and all child directories (default ".")
+  -e string
+        OPTIONAL
+            a comma delimted list of file extensions to scan
+            if none are given all files will be searched
+  -k string
+        OPTIONAL
+            a comma delimted list of characters to look for in a file
+            if no keywords are given - all file paths of given file extensions will be returned
+            if keywords are given only filepaths of matches will be returned
+  -r    OPTIONAL
+            wether to use the regex engine or not
+            defaults to false and will not use the regex engine for scans unless set to a truthy value
+            truthy values are: 1, t, T, true, True, TRUE
+            flasey values are: 0, f, F, false, False, FALSE
+```
 
-## Example
+#### No Keywords
+
+If you just want to scan for file paths
+
+```bash
+$ scnnr -e=.md -d=.
+README.md
+```
+
+Do not provide any keywords and scnnr will return all given filepaths matching given extensions.
+
+If no extensions are given, all filepaths will be returned in the scanned directory.
 
 #### Single Keyword
 
-Scan this repo for markdown files with `cache=` in them.
+Scan this repo for markdown files with the keyword `cache=` in them.
+
+_With quotes_
 
 ```bash
 $ scnnr -e=".md" -d="." -k="cache="
 README.md
 ```
 
-Or without quotes (if no need to escape anything)
+_Without quotes (if no need to escape anything)_
 
 ```bash
 scnnr -e=.md -d=. -k=cache=
@@ -52,7 +92,7 @@ README.md
 cmd/scanner.go
 ```
 
-#### Using the package github.com/selfup/scnnr/scnnr
+#### Using the package github.com/selfup/scnnr/pkg
 
 ```go
 import (
@@ -74,32 +114,6 @@ err := scanner.Scan()
 if err != nil {
   log.Fatal(err)
 }
-```
-
-#### Help
-
-Either use the `-h` flag or no flags at all to get help info.
-
-Without the `-h` flag and/or all required args, `scnnr` will exit with a status code of 1:
-
-```
-$ scnnr
-  -d string
-        REQUIRED
-            directory where scnnr will scan
-  -e string
-        REQUIRED
-            a comma delimted list of file extensions to scan
-  -k string
-        REQUIRED
-            a comma delimted list of keywords to search for in a file
-  -r    OPTIONAL
-            wether to use the regex engine or not
-            defaults to false and will not use the regex engine for scans unless set to a truthy value
-            truthy values are: 1, t, T, true, True, TRUE
-            flasey values are: 0, f, F, false, False, FALSE
-
-ERROR - scannr has required arguments - please read above output - exiting..
 ```
 
 ## Regex
