@@ -171,6 +171,8 @@ go install github.com/selfup/scnnr
 
 #### If you do not have Go
 
+**Release Binaries**
+
 I have a [GitLab Release Repo](https://gitlab.com/selfup/scnnr) that builds the needed artifacts using [GitLabCI](https://docs.gitlab.com/ee/ci/quick_start/)
 
 **1. Direct Link**
@@ -190,6 +192,29 @@ wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=releas
 ```
 
 1. Unzip `artifacts.zip`
+1. Unzip `scnnr_bins.zip`
+
+From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
+
+```
+scnnr_bins/linux:
+scnnr
+
+scnnr_bins/mac:
+scnnr
+
+scnnr_bins/windows:
+scnnr.exe
+```
+
+**Docker**
+
+1. Clone repo: `git clone https://github.com/selfup/scnnr`
+1. `cd` into repo
+
+   - Shell: `./scripts/dind.build.sh`
+   - Powershell: `./scripts/dind.build.ps1`
+
 1. Unzip `scnnr_bins.zip`
 
 From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
