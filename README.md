@@ -1,8 +1,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [Scannr](#scannr)
+- [Scnnr](#scnnr)
   - [Examples](#examples)
     - [Help](#help)
     - [No Keywords](#no-keywords)
@@ -24,7 +23,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Scannr
+# Scnnr
 
 Scans files (by extension) in a given directory for a keyword. Can be any file, or can be just `.js` or `.js,.html,.jsx`.
 
