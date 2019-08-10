@@ -26,9 +26,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	scnnr "github.com/selfup/scnnr/pkg"
@@ -40,16 +38,20 @@ func main() {
 	var keywords []string
 
 	var dir string
-	flag.StringVar(&dir, "d", "", `REQUIRED
-    directory where scnnr will scan`)
+	flag.StringVar(&dir, "d", ".", `OPTIONAL
+    directory where scnnr will scan
+    default is current directory and all child directories`)
 
 	var ext string
-	flag.StringVar(&ext, "e", "", `REQUIRED
-    a comma delimted list of file extensions to scan`)
+	flag.StringVar(&ext, "e", "", `OPTIONAL
+    a comma delimted list of file extensions to scan
+    if none are given all files will be searched`)
 
 	var kwd string
-	flag.StringVar(&kwd, "k", "", `REQUIRED
-    a comma delimted list of keywords to search for in a file`)
+	flag.StringVar(&kwd, "k", "", `OPTIONAL
+    a comma delimted list of characters to look for in a file
+    if no keywords are given - all file paths of given file extensions will be returned
+    if keywords are given only filepaths of matches will be returned`)
 
 	var rgx bool
 	flag.BoolVar(&rgx, "r", false, `OPTIONAL
@@ -58,21 +60,7 @@ func main() {
     truthy values are: 1, t, T, true, True, TRUE
     flasey values are: 0, f, F, false, False, FALSE`)
 
-	var nok bool
-	flag.BoolVar(&nok, "n", false, `OPTIONAL
-    wether to search for keywords or not
-    defaults to false
-    if true - files will not be scanned - all paths will be returned
-    truthy values are: 1, t, T, true, True, TRUE
-    flasey values are: 0, f, F, false, False, FALSE`)
-
 	flag.Parse()
-
-	if dir == "" && kwd == "" && ext == "" {
-		flag.PrintDefaults()
-		fmt.Print("\nERROR - scnnr has required arguments - please read above output - exiting..\n\n")
-		os.Exit(1)
-	}
 
 	directory = dir
 	extensions = strings.Split(ext, ",")
@@ -81,7 +69,6 @@ func main() {
 	scanner := scnnr.Scanner{
 		Regex:          rgx,
 		Keywords:       keywords,
-		NoKeywords:     nok,
 		Directory:      directory,
 		FileExtensions: extensions,
 	}
