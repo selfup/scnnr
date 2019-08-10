@@ -35,7 +35,7 @@ func (s *Scanner) Scan() error {
 		return err
 	}
 
-	if len(s.Keywords) == 0 {
+	if s.Keywords[0] == "" {
 		var foundFiles []string
 
 		for _, fileInfo := range s.MatchedFilePaths {
@@ -72,7 +72,7 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	}
 
 	if !info.IsDir() {
-		if len(s.FileExtensions) == 0 {
+		if s.FileExtensions[0] == "" {
 			s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
 		} else {
 			for _, pattern := range s.FileExtensions {
