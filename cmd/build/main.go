@@ -31,7 +31,7 @@ func main() {
 
 	nixFiles := []string{"scnnr_bins/linux/scnnr", "scnnr_bins/mac/scnnr"}
 
-	chmod777(nixFiles)
+	chmod(nixFiles, 0777)
 
 	ci := os.Getenv("CI")
 	version := os.Getenv("VERSION")
@@ -96,12 +96,13 @@ func fileExists(filename string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
+
 	return !info.IsDir()
 }
 
-func chmod777(files []string) {
+func chmod(files []string, mode os.FileMode) {
 	for _, file := range files {
-		err := os.Chmod(file, 0777)
+		err := os.Chmod(file, mode)
 		if err != nil {
 			log.Fatal(err)
 		}

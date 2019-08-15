@@ -246,9 +246,9 @@ No matches on 33k files after `npm i` for a JavaScript project as the `artifact`
 ```
 $ time scnnr -d=artifact -e=.kt -k=cache
 
-real    0m0.289s
-user    0m0.241s
-sys     0m0.138s
+real    0m0.121s
+user    0m0.053s
+sys     0m0.076s
 ```
 
 33k files, two file types, one keyword, and 567 matches. _Not all 567 matches displayed in README_:
@@ -256,9 +256,9 @@ sys     0m0.138s
 ```
 $ time scnnr -d=artifact -e=.md,.js -k=cache > .results
 
-real    0m0.435s
-user    0m0.843s
-sys     0m0.258s
+real    0m0.232s
+user    0m0.574s
+sys     0m0.210s
 $ ls -lahg .results
 -rw-r--r-- 1 selfup 33K Jul 21 00:55 .results
 ```
@@ -268,9 +268,9 @@ $ ls -lahg .results
 ```
 $ time scnnr -d=artifact -e=.js,.md -k=stuff,things,wow,lol,omg > .results
 
-real    0m0.450s
-user    0m1.016s
-sys     0m0.263s
+real    0m0.266s
+user    0m0.813s
+sys     0m0.174s
 $ ls -lahg .results
 -rw-r--r-- 1 selfup 22K Jul 21 00:53 .results
 ```
@@ -284,9 +284,9 @@ The amount of file paths results in 1.2MB of text data..
 ```
 $ time scnnr -d=artifact -e=.js,.ts,.md,.css -k=const,let,var,import,export > .results
 
-real    0m0.445s
-user    0m0.924s
-sys     0m0.304s
+real    0m0.344s
+user    0m0.755s
+sys     0m0.351s
 $ ls -lahg .results
 -rw-r--r-- 1 selfup 1.2M Jul 21 00:57 .results
 ```
