@@ -30,6 +30,7 @@ type FileData struct {
 
 // Scan walks the given directory tree and stores all matching files into a slice
 func (s *Scanner) Scan() error {
+
 	err := filepath.Walk(s.Directory, s.scan)
 	if err != nil {
 		return err
@@ -92,7 +93,7 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 // Otherwise strings.Contains will be used.
 func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
-	check(err)
+	check(err, match.Path)
 
 	scanner := bufio.NewScanner(file)
 	buf := make([]byte, 0, 1024)
@@ -132,7 +133,7 @@ func (s *Scanner) parse(match FileData) {
 		}
 	}
 
-	check(scanner.Err())
+	check(scanner.Err(), match.Path)
 
 	file.Close()
 }
@@ -161,8 +162,8 @@ func eachSlice(files []FileData) [][]FileData {
 	return chunks
 }
 
-func check(err error) {
+func check(err error, path string) {
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, " --> ", path)
 	}
 }
