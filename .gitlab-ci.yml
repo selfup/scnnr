@@ -1,28 +1,17 @@
 stages:
-  - docker_build
   - build
 
 release:
   only:
     refs:
       - master
-
-  stage: docker_build
-
-  image: docker:stable
-
-  services:
-    - docker:dind
-
-  script:
-    - ./scripts/dind.build.sh
   
   stage: build
   
-  image: golang
+  image: golang:alpine
 
   script:
-    - go run cmd/pack/main.go
+    - CI=true VERSION=$CI_PIPELINE_IID go run cmd/pack/main.go
 
   artifacts:
     paths:
