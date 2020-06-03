@@ -64,6 +64,13 @@ $ scnnr -h
 If you just want to scan for file paths
 
 ```bash
+$ scnnr -e .md -d .
+README.md
+```
+
+You can also use equal signs for the flags:
+
+```bash
 $ scnnr -e=.md -d=.
 README.md
 ```
@@ -79,20 +86,20 @@ Scan this repo for markdown files with the keyword `cache=` in them.
 _With quotes_
 
 ```bash
-$ scnnr -e=".md" -d="." -k="cache="
+$ scnnr -e ".md" -d "." -k "cache="
 README.md
 ```
 
 _Without quotes (if no need to escape anything)_
 
 ```bash
-scnnr -e=.md -d=. -k=cache=
+scnnr -e .md -d . -k cache=
 ```
 
 ### Multiple Keywords and Multiple File Extensions
 
 ```bash
-$ scnnr -d=. -e=.md,.go -k=fileData,cache
+$ scnnr -d . -e .md,.go -k fileData,cache
 README.md
 cmd/scanner.go
 ```
@@ -125,14 +132,14 @@ if err != nil {
 
 ### Using Regex Patterns
 
-`scnnr -e=".js" -d="artifact" -k="cons?" -r=T > .results`
+`scnnr -e ".js" -d "artifact" -k "cons?" -r T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
 
 `t, T, 1, true, True, TRUE`
 
 ```
-scnnr $ time scnnr -r=1 -d=artifact -e=.js,.ts,.md -k='cons*,let?,var?, impor*, expor*' > .results
+scnnr $ time scnnr -r 1 -d artifact -e .js,.ts,.md -k 'cons*,let?,var?, impor*, expor*' > .results
 
 real    0m0.748s
 user    0m2.398s
@@ -248,7 +255,7 @@ Memory in the following example never went above 5.5MB for the entire program.
 No matches on 33k files after `npm i` for a JavaScript project as the `artifact`:
 
 ```
-$ time scnnr -d=artifact -e=.kt -k=cache
+$ time scnnr -d artifact -e .kt -k cache
 
 real    0m0.121s
 user    0m0.053s
@@ -258,7 +265,7 @@ sys     0m0.076s
 33k files, two file types, one keyword, and 567 matches:
 
 ```
-$ time scnnr -d=artifact -e=.md,.js -k=cache > .results
+$ time scnnr -d artifact -e .md,.js -k cache > .results
 
 real    0m0.232s
 user    0m0.574s
@@ -270,7 +277,7 @@ $ ls -lahg .results
 33k files, two file types, 5 keywords, and 360 matches:
 
 ```
-$ time scnnr -d=artifact -e=.js,.md -k=stuff,things,wow,lol,omg > .results
+$ time scnnr -d artifact -e .js,.md -k stuff,things,wow,lol,omg > .results
 
 real    0m0.266s
 user    0m0.813s
@@ -286,7 +293,7 @@ Results are piped into a file to reduce noise.
 The amount of file paths results in 1.2MB of text data..
 
 ```
-$ time scnnr -d=artifact -e=.js,.ts,.md,.css -k=const,let,var,import,export > .results
+$ time scnnr -d artifact -e .js,.ts,.md,.css -k const,let,var,import,export > .results
 
 real    0m0.344s
 user    0m0.755s
