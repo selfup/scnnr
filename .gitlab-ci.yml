@@ -11,8 +11,13 @@ release:
   image: golang:alpine
 
   script:
-    - CI=true VERSION=$CI_PIPELINE_IID go run cmd/pack/main.go
+    - export CI=true
+    - export VERSION=$CI_PIPELINE_IID
+    - go run cmd/pack/main.go
+    - go run cmd/checksum/main.go
+    - cat scnnr_bins.zip.sha256
 
   artifacts:
     paths:
       - scnnr_bins.zip
+      - scnnr_bins.zip.sha256

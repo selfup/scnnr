@@ -12,5 +12,6 @@ COPY . $GOPATH/$SCNNR
 WORKDIR $GOPATH/$SCNNR
 
 RUN go run cmd/pack/main.go
+RUN go run cmd/checksum/main.go
 
 CMD ["sleep", "infinity"]
