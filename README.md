@@ -196,6 +196,10 @@ curl -L https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=rel
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release -O artifacts.zip
 ```
 
+_the sha256 sum is provided in the artifact zip of the `scnnr_bins.zip`_
+
+_you can also verify the provided sum matches the output in CI (output for verification)_
+
 1. Unzip `artifacts.zip`
 1. Unzip `scnnr_bins.zip`
 
