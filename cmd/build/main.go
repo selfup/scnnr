@@ -50,7 +50,7 @@ func main() {
 }
 
 func compile(goos string, arch string) {
-	setEnv("CGO_ENALED", "0")
+	setEnv("CGO_ENABLED", "0")
 	setEnv("GOOS", goos)
 	setEnv("GOARCH", arch)
 
