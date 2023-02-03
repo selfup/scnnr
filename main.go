@@ -91,6 +91,8 @@ func main() {
 
 	flag.Parse()
 
+	directory = dir
+
 	if mode == "fnf" {
 		scanFuzzy := strings.Split(fuzzy, ",")
 		scanPaths := strings.Split(paths, ",")
@@ -105,7 +107,6 @@ func main() {
 			fmt.Println(file)
 		}
 	} else if mode == "scn" {
-		directory = dir
 		extensions = strings.Split(ext, ",")
 		keywords = strings.Split(kwd, ",")
 
