@@ -2,11 +2,14 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Scnnr](#scnnr)
-  - [Examples](#examples)
+  - [Examples (scn mode)](#examples)
     - [Help](#help)
     - [No Keywords](#no-keywords)
     - [Single Keyword](#single-keyword)
     - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+- [FileNameFinder](#file-name-finder-namefinder-fnf)
+- [FileSizeFinder](#file-size-finder-sizefinder-fsf)
+- [BackToScnnr](#back-to-scnnr)
     - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
   - [Regex](#regex)
     - [Using Regex Patterns](#using-regex-patterns)
@@ -29,9 +32,11 @@ Scans files (by extension) in a given directory for a keyword. Can be any file, 
 
 Prints out a `\n` delimited string of each file (filepath in artifact) containing one of the keywords.
 
-Max file descriptors is set to 1024 (linux default).
+Max file descriptors is set to 1024 (linux default) in scnnr scn mode.
 
 ## Examples
+
+`scn` mode is the default
 
 ### Help
 
@@ -40,23 +45,46 @@ Call scnnr with the `-h` flag:
 ```
 $ scnnr -h
   -d string
-        OPTIONAL
+        OPTIONAL Scnnr MODE
             directory where scnnr will scan
             default is current directory and all child directories (default ".")
   -e string
-        OPTIONAL
-            a comma delimted list of file extensions to scan
+        OPTIONAL Scnnr MODE
+            a comma delimited list of file extensions to scan
             if none are given all files will be searched
+  -f string
+        REQUIRED NameFinder MODE
+            fuzzy find the filename(s) contain(s) - can be comma delimited: Example 'wow' or 'wow,omg,lol'
   -k string
-        OPTIONAL
-            a comma delimted list of characters to look for in a file
+        OPTIONAL Scnnr MODE
+            a comma delimited list of characters to look for in a file
             if no keywords are given - all file paths of given file extensions will be returned
-            if keywords are given only filepaths of matches will be returned
-  -r    OPTIONAL
-            wether to use the regex engine or not
+            if keywords are given - only filepaths of matches will be returned
+  -m string
+        OPTIONAL
+            mode that scnnr will run in
+
+            options are:
+              (scn) for scnnr
+              (fnf) for File/NameFinder
+              (fsf) for File/SizeFinder
+
+            ex: scnnr -d / -k password,token,authorization
+            ex: scnnr -m fsf -s 100MB -d E:/LotsOfStuff
+            ex: scnnr -m fnf -f DEFCON -p /tmp,/usr,/etc,$HOME/Documents
+
+         (default "scn")
+  -p string
+        REQUIRED NameFinder MODE
+            any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'
+  -r    OPTIONAL Scnnr MODE
+            if you want to use the regex engine or not
             defaults to false and will not use the regex engine for scans unless set to a truthy value
             truthy values are: 1, t, T, true, True, TRUE
-            flasey values are: 0, f, F, false, False, FALSE
+            falsy values are: 0, f, F, false, False, FALSE
+  -s string
+        REQUIRED SizeFinder MODE
+            size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB
 ```
 
 ### No Keywords
@@ -103,6 +131,44 @@ $ scnnr -d . -e .md,.go -k fileData,cache
 README.md
 cmd/scanner.go
 ```
+
+# File Name Finder (NameFinder) (fnf)
+
+```
+  -p string
+        REQUIRED NameFinder MODE
+            any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'
+  -f string
+        REQUIRED NameFinder MODE
+            fuzzy find the filename(s) contain(s) - can be comma delimited: Example 'wow' or 'wow,omg,lol'
+```
+
+Example use to search `/tmp`, `/etc`, `/usr`, and `$HOME/Documents` for filenames that contain:
+
+1. DEFCON
+1. Tax
+1. Return
+1. Finance
+
+```bash
+scnnr -m fnf -f DEFCON,Finance,Tax,Return -p /tmp,/usr,/etc,$HOME/Documents
+```
+
+# File Size Finder (SizeFinder) (fsf)
+
+```
+  -s string
+        REQUIRED SizeFinder MODE
+            size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB
+```
+
+Example use to find any file over 100MB in E:/LotsOfStuff
+
+```bash
+scnnr -m fsf -s 100MB -d E:/LotsOfStuff
+```
+
+# Back to Scnnr
 
 ### Using the package github.com/selfup/scnnr/pkg
 
@@ -177,8 +243,7 @@ if err != nil {
 ### If you have Go
 
 ```bash
-go get -u github.com/selfup/scnnr
-go install github.com/selfup/scnnr
+go install github.com/selfup/scnnr@latest
 ```
 
 ### If you do not have Go
@@ -246,7 +311,9 @@ scnnr_bins/windows:
 scnnr.exe
 ```
 
-## Performance
+## Performance (scn)
+
+_I will add perf numbers for fnf and fsf modes soon!_
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
 

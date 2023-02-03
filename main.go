@@ -26,6 +26,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"strings"
 
@@ -37,45 +38,97 @@ func main() {
 	var extensions []string
 	var keywords []string
 
+	var mode string
+	flag.StringVar(&mode, "m", "scn", `OPTIONAL
+    mode that scnnr will run in
+
+    options are:
+      (scn) for scnnr
+      (fnf) for File/NameFinder
+      (fsf) for File/SizeFinder
+
+    ex: scnnr -d / -k password,token,authorization
+    ex: scnnr -m fsf -s 100MB -d E:/LotsOfStuff
+    ex: scnnr -m fnf -f DEFCON -p /tmp,/usr,/etc,$HOME/Documents
+    
+`)
+
 	var dir string
-	flag.StringVar(&dir, "d", ".", `OPTIONAL
+	flag.StringVar(&dir, "d", ".", `OPTIONAL Scnnr MODE
     directory where scnnr will scan
     default is current directory and all child directories`)
 
 	var ext string
-	flag.StringVar(&ext, "e", "", `OPTIONAL
-    a comma delimted list of file extensions to scan
+	flag.StringVar(&ext, "e", "", `OPTIONAL Scnnr MODE
+    a comma delimited list of file extensions to scan
     if none are given all files will be searched`)
 
 	var kwd string
-	flag.StringVar(&kwd, "k", "", `OPTIONAL
-    a comma delimted list of characters to look for in a file
+	flag.StringVar(&kwd, "k", "", `OPTIONAL Scnnr MODE
+    a comma delimited list of characters to look for in a file
     if no keywords are given - all file paths of given file extensions will be returned
-    if keywords are given only filepaths of matches will be returned`)
+    if keywords are given - only filepaths of matches will be returned`)
 
 	var rgx bool
-	flag.BoolVar(&rgx, "r", false, `OPTIONAL
-    wether to use the regex engine or not
+	flag.BoolVar(&rgx, "r", false, `OPTIONAL Scnnr MODE
+    if you want to use the regex engine or not
     defaults to false and will not use the regex engine for scans unless set to a truthy value
     truthy values are: 1, t, T, true, True, TRUE
-    flasey values are: 0, f, F, false, False, FALSE`)
+    falsy values are: 0, f, F, false, False, FALSE`)
+
+	// FileNameFinder mode
+	var paths string
+	flag.StringVar(&paths, "p", "", `REQUIRED NameFinder MODE
+    any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'`)
+
+	var fuzzy string
+	flag.StringVar(&fuzzy, "f", "", `REQUIRED NameFinder MODE
+    fuzzy find the filename(s) contain(s) - can be comma delimited: Example 'wow' or 'wow,omg,lol'`)
+
+	var size string
+	flag.StringVar(&size, "s", "", `REQUIRED SizeFinder MODE
+    size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB`)
 
 	flag.Parse()
 
 	directory = dir
-	extensions = strings.Split(ext, ",")
-	keywords = strings.Split(kwd, ",")
 
-	scanner := scnnr.Scanner{
-		Regex:          rgx,
-		Keywords:       keywords,
-		Directory:      directory,
-		FileExtensions: extensions,
-	}
+	if mode == "fnf" {
+		scanFuzzy := strings.Split(fuzzy, ",")
+		scanPaths := strings.Split(paths, ",")
 
-	err := scanner.Scan()
+		nfnf := scnnr.NewFileNameFinder(scanFuzzy)
 
-	if err != nil {
-		log.Fatal(err)
+		for _, path := range scanPaths {
+			nfnf.Scan(path)
+		}
+
+		for _, file := range nfnf.Files {
+			fmt.Println(file)
+		}
+	} else if mode == "scn" {
+		extensions = strings.Split(ext, ",")
+		keywords = strings.Split(kwd, ",")
+
+		scanner := scnnr.Scanner{
+			Regex:          rgx,
+			Keywords:       keywords,
+			Directory:      directory,
+			FileExtensions: extensions,
+		}
+
+		err := scanner.Scan()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if mode == "fsf" {
+		nfsf := scnnr.NewFileSizeFinder(size)
+
+		nfsf.Scan(directory)
+
+		for _, file := range nfsf.Files {
+			fmt.Println(file)
+		}
 	}
 }
