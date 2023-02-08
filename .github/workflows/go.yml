@@ -1,0 +1,19 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: OS Deps
+      run: "sudo apt-get update"
+    - name: Tests
+      run: ./scripts/dind.build.sh
