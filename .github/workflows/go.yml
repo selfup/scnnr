@@ -16,4 +16,4 @@ jobs:
     - name: OS Deps
       run: "sudo apt-get update"
     - name: Tests
-      run: ./scripts/dind.build.sh
+      run: go run cmd/build/main.go && ls
