@@ -16,4 +16,4 @@ jobs:
     - name: OS Deps
       run: "sudo apt-get update"
     - name: Tests
-      run: go run cmd/pack/main.go && go run cmd/checksum/main.go && ls | grep scnnr && cat scnnr_bins.zip.sha256
+      run: ./scripts/ci.sh
