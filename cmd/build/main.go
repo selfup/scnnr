@@ -97,7 +97,7 @@ func compile(goos string, arch string) {
 func mv(old string, new string) {
 	err := os.Rename(old, new)
 	if err != nil {
-		log.Fatal("MOVE %s", err)
+		log.Fatal(err)
 	}
 }
 
