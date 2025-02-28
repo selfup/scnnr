@@ -14,9 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: OS Updates
-      run: "sudo apt update -y \
-            sudo apt dist-upgrade -y \
-            sudo apt autoremove -y \
-            sudo apt clean -y"
+      run: "sudo apt update"
     - name: Build Bins
       run: ./scripts/bins.sh
