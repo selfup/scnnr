@@ -28,25 +28,18 @@ func NewFileSizeFinder(size string) *FileSizeFinder {
 	switch size {
 	case "1MB":
 		fsf.Size = 1000000
-		break
 	case "10MB":
 		fsf.Size = 10000000
-		break
 	case "100MB":
 		fsf.Size = 100000000
-		break
 	case "1GB":
 		fsf.Size = 1000000000
-		break
 	case "10GB":
 		fsf.Size = 10000000000
-		break
 	case "100GB":
 		fsf.Size = 1000000000000
-		break
 	case "1TB":
 		fsf.Size = 1000000000000000
-		break
 	default:
 		panic("please provide a size 1MB 10MB 100MB 1GB 10GB 100GB 1TB")
 	}
@@ -61,20 +54,26 @@ func (f *FileSizeFinder) Scan(directory string) {
 		panic(err)
 	}
 
-	f.findFiles(directory, "")
+	f.findFiles(directory)
 }
 
-func (f *FileSizeFinder) findFiles(directory string, prefix string) {
-	paths, _ := ioutil.ReadDir(directory)
+func (f *FileSizeFinder) findFiles(directory string) {
+	dirExists, _ := os.Open(directory)
+
+	paths, _ := dirExists.ReadDir(-1)
 
 	var dirs []os.FileInfo
 	var files []os.FileInfo
 
 	for _, path := range paths {
 		if path.IsDir() {
-			dirs = append(dirs, path)
+			p, _ := os.Stat(path.Name())
+
+			dirs = append(dirs, p)
 		} else {
-			files = append(files, path)
+			f, _ := os.Stat(path.Name())
+
+			files = append(files, f)
 		}
 	}
 
@@ -93,7 +92,7 @@ func (f *FileSizeFinder) findFiles(directory string, prefix string) {
 
 		for _, dir := range dirs {
 			go func(diR os.FileInfo, direcTory string, direcTion string) {
-				f.findFiles(direcTory+direcTion+diR.Name(), direcTory)
+				f.findFiles(direcTory + direcTion + diR.Name())
 				dirGroup.Done()
 			}(dir, directory, f.Direction)
 		}

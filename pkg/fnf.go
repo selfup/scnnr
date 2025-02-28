@@ -1,7 +1,6 @@
 package scnnr
 
 import (
-	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
@@ -33,25 +32,31 @@ func NewFileNameFinder(keywords []string) *FileNameFinder {
 
 // Scan is a concurrent/parallel directory walker
 func (f *FileNameFinder) Scan(directory string) {
-	_, err := ioutil.ReadDir(directory)
+	_, err := os.ReadDir(directory)
 	if err != nil {
 		panic(err)
 	}
 
-	f.findFiles(directory, "")
+	f.findFiles(directory)
 }
 
-func (f *FileNameFinder) findFiles(directory string, prefix string) {
-	paths, _ := ioutil.ReadDir(directory)
+func (f *FileNameFinder) findFiles(directory string) {
+	dirExists, _ := os.Open(directory)
+
+	paths, _ := dirExists.ReadDir(-1)
 
 	var dirs []os.FileInfo
 	var files []os.FileInfo
 
 	for _, path := range paths {
 		if path.IsDir() {
-			dirs = append(dirs, path)
+			p, _ := os.Stat(path.Name())
+
+			dirs = append(dirs, p)
 		} else {
-			files = append(files, path)
+			f, _ := os.Stat(path.Name())
+
+			files = append(files, f)
 		}
 	}
 
@@ -72,7 +77,7 @@ func (f *FileNameFinder) findFiles(directory string, prefix string) {
 
 		for _, dir := range dirs {
 			go func(diR os.FileInfo, direcTory string, direcTion string) {
-				f.findFiles(direcTory+direcTion+diR.Name(), direcTory)
+				f.findFiles(direcTory + direcTion + diR.Name())
 				dirGroup.Done()
 			}(dir, directory, f.Direction)
 		}

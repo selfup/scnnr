@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -39,7 +38,7 @@ func main() {
 	if ci != "" && version != "" {
 		versionNumber := []byte(version + "\n")
 
-		err := ioutil.WriteFile("scnnr_bins/version", versionNumber, 0777)
+		err := os.WriteFile("scnnr_bins/version", versionNumber, 0777)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -73,12 +72,12 @@ func mv(old string, new string) {
 }
 
 func cp(source string, destination string) {
-	input, err := ioutil.ReadFile(source)
+	input, err := os.ReadFile(source)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = ioutil.WriteFile(destination, input, 0777)
+	err = os.WriteFile(destination, input, 0777)
 	if err != nil {
 		log.Fatal(err)
 	}

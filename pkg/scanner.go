@@ -147,10 +147,8 @@ func eachSlice(files []FileData) [][]FileData {
 			var newChunk []FileData
 			chunks = append(chunks, chunk)
 			chunk = newChunk
-			break
 		default:
 			chunk = append(chunk, fileData)
-			break
 		}
 	}
 
