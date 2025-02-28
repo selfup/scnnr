@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -14,7 +13,7 @@ const (
 )
 
 func main() {
-	zip, err := ioutil.ReadFile(source)
+	zip, err := os.ReadFile(source)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -23,7 +22,7 @@ func main() {
 	sumStr := fmt.Sprintf("%x", sum)
 	sumStrBytes := []byte(sumStr + "  " + source + "\n")
 
-	writeErr := ioutil.WriteFile(destination, sumStrBytes, os.ModePerm)
+	writeErr := os.WriteFile(destination, sumStrBytes, os.ModePerm)
 	if writeErr != nil {
 		log.Fatalln(writeErr)
 	}

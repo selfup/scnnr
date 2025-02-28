@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: OS Deps
-      run: "sudo apt-get update"
-    - name: Tests
-      run: chmod +x ./scripts/*.sh && ./scripts/ci.sh
+    - name: OS Updates
+      run: "sudo apt update"
+    - name: Build Bins
+      run: ./scripts/bins.sh

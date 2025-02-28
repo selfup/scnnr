@@ -3,7 +3,7 @@ FROM golang:alpine
 ARG CI=true
 ARG VERSION=9000
 
-ENV SCNNR src/github.com/selfup/scnnr
+ENV SCNNR=src/github.com/selfup/scnnr
 
 RUN mkdir -p go/src/github.com/selfup/scnnr
 

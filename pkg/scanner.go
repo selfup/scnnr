@@ -48,11 +48,13 @@ func (s *Scanner) Scan() error {
 
 		for _, chunk := range eachSlice(s.MatchedFilePaths) {
 			matchedCount := len(chunk)
+
 			wg.Add(matchedCount)
 
 			for _, match := range chunk {
 				go func(m FileData) {
 					s.parse(m)
+
 					wg.Done()
 				}(match)
 			}
@@ -92,9 +94,11 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 // Otherwise strings.Contains will be used.
 func (s *Scanner) parse(match FileData) {
 	file, err := os.Open(match.Path)
+
 	check(err)
 
 	scanner := bufio.NewScanner(file)
+
 	buf := make([]byte, 0, 1024)
 
 	// only extend buffer to file size
@@ -115,17 +119,25 @@ func (s *Scanner) parse(match FileData) {
 
 				if re.Match([]byte(line)) {
 					s.Lock()
+
 					s.KeywordMatches = append(s.KeywordMatches, match.Path)
+
 					found = true
+
 					s.Unlock()
+
 					break
 				}
 			} else {
 				if strings.Contains(line, s.Keywords[i]) {
 					s.Lock()
+
 					s.KeywordMatches = append(s.KeywordMatches, match.Path)
+
 					found = true
+
 					s.Unlock()
+
 					break
 				}
 			}
@@ -147,10 +159,8 @@ func eachSlice(files []FileData) [][]FileData {
 			var newChunk []FileData
 			chunks = append(chunks, chunk)
 			chunk = newChunk
-			break
 		default:
 			chunk = append(chunk, fileData)
-			break
 		}
 	}
 
