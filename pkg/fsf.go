@@ -1,7 +1,6 @@
 package scnnr
 
 import (
-	"io/ioutil"
 	"os"
 	"runtime"
 	"sync"
@@ -49,7 +48,8 @@ func NewFileSizeFinder(size string) *FileSizeFinder {
 
 // Scan is a concurrent/parallel directory walker
 func (f *FileSizeFinder) Scan(directory string) {
-	_, err := ioutil.ReadDir(directory)
+	_, err := os.ReadDir(directory)
+
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +80,9 @@ func (f *FileSizeFinder) findFiles(directory string) {
 	for _, file := range files {
 		if file.Size() >= f.Size {
 			f.mutex.Lock()
+
 			f.Files = append(f.Files, directory+f.Direction+file.Name())
+
 			f.mutex.Unlock()
 		}
 	}
@@ -88,11 +90,13 @@ func (f *FileSizeFinder) findFiles(directory string) {
 	dirLen := len(dirs)
 	if dirLen > 0 {
 		var dirGroup sync.WaitGroup
+
 		dirGroup.Add(dirLen)
 
 		for _, dir := range dirs {
 			go func(diR os.FileInfo, direcTory string, direcTion string) {
 				f.findFiles(direcTory + direcTion + diR.Name())
+
 				dirGroup.Done()
 			}(dir, directory, f.Direction)
 		}

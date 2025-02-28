@@ -33,6 +33,7 @@ func NewFileNameFinder(keywords []string) *FileNameFinder {
 // Scan is a concurrent/parallel directory walker
 func (f *FileNameFinder) Scan(directory string) {
 	_, err := os.ReadDir(directory)
+
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +65,9 @@ func (f *FileNameFinder) findFiles(directory string) {
 		for _, keyword := range f.Keywords {
 			if strings.Contains(file.Name(), keyword) {
 				f.mutex.Lock()
+
 				f.Files = append(f.Files, directory+f.Direction+file.Name())
+
 				f.mutex.Unlock()
 			}
 		}
@@ -73,11 +76,13 @@ func (f *FileNameFinder) findFiles(directory string) {
 	dirLen := len(dirs)
 	if dirLen > 0 {
 		var dirGroup sync.WaitGroup
+
 		dirGroup.Add(dirLen)
 
 		for _, dir := range dirs {
 			go func(diR os.FileInfo, direcTory string, direcTion string) {
 				f.findFiles(direcTory + direcTion + diR.Name())
+
 				dirGroup.Done()
 			}(dir, directory, f.Direction)
 		}
