@@ -16,4 +16,4 @@ jobs:
     - name: OS Deps
       run: "sudo apt-get update"
     - name: Tests
-      run: chmod +x ./scripts/*.sh && ./scripts/ci.sh
+      run: ./scripts/ci.sh
