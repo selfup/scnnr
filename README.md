@@ -278,10 +278,16 @@ _you can also verify the provided sum matches the output in CI (output for verif
 From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
 
 ```
-scnnr_bins/linux:
+scnnr_bins/linux/intel:
 scnnr
 
-scnnr_bins/mac:
+scnnr_bins/linux/arm:
+scnnr
+
+scnnr_bins/mac/intel:
+scnnr
+
+scnnr_bins/mac/arm:
 scnnr
 
 scnnr_bins/windows:
