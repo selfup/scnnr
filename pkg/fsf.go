@@ -58,20 +58,19 @@ func (f *FileSizeFinder) Scan(directory string) {
 }
 
 func (f *FileSizeFinder) findFiles(directory string) {
-	dirExists, _ := os.Open(directory)
-
-	paths, _ := dirExists.ReadDir(-1)
+	paths, _ := os.ReadDir(directory)
 
 	var dirs []os.FileInfo
 	var files []os.FileInfo
 
 	for _, path := range paths {
 		if path.IsDir() {
-			p, _ := os.Stat(path.Name())
+			p, _ := os.Stat(directory + f.Direction + path.Name())
 
 			dirs = append(dirs, p)
 		} else {
-			f, _ := os.Stat(path.Name())
+
+			f, _ := os.Stat(directory + f.Direction + path.Name())
 
 			files = append(files, f)
 		}
