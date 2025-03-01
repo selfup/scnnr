@@ -64,13 +64,15 @@ func (f *FileSizeFinder) findFiles(directory string) {
 	var files []os.FileInfo
 
 	for _, path := range paths {
+		fullPath := directory + f.Direction + path.Name()
+
 		if path.IsDir() {
-			p, _ := os.Stat(directory + f.Direction + path.Name())
+			p, _ := os.Stat(fullPath)
 
 			dirs = append(dirs, p)
 		} else {
 
-			f, _ := os.Stat(directory + f.Direction + path.Name())
+			f, _ := os.Stat(fullPath)
 
 			files = append(files, f)
 		}
@@ -80,7 +82,9 @@ func (f *FileSizeFinder) findFiles(directory string) {
 		if file.Size() >= f.Size {
 			f.mutex.Lock()
 
-			f.Files = append(f.Files, directory+f.Direction+file.Name())
+			fullFilePath := directory + f.Direction + file.Name()
+
+			f.Files = append(f.Files, fullFilePath)
 
 			f.mutex.Unlock()
 		}
@@ -93,8 +97,8 @@ func (f *FileSizeFinder) findFiles(directory string) {
 		dirGroup.Add(dirLen)
 
 		for _, dir := range dirs {
-			go func(diR os.FileInfo, direcTory string, direcTion string) {
-				f.findFiles(direcTory + direcTion + diR.Name())
+			go func(dirInfo os.FileInfo, dirName string, pathDirection string) {
+				f.findFiles(dirName + pathDirection + dirInfo.Name())
 
 				dirGroup.Done()
 			}(dir, directory, f.Direction)
