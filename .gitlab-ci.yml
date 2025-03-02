@@ -13,7 +13,9 @@ release:
   script:
     - export CI=true
     - export VERSION=$CI_PIPELINE_IID
-    - ./scripts/e2e.sh
+    - go run main.go -m fsf -s 1MB -d $HOME
+    - go run main.go -m fnf -f main,DEFCON -p $HOME
+    - go run main.go -k main,const,let,var,for -p $HOME
     - go run cmd/pack/main.go
     - go run cmd/checksum/main.go
     - cat scnnr_bins.zip.sha256
