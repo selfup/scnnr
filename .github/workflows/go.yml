@@ -15,5 +15,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: OS Updates
       run: "sudo apt update"
+    - name: E2E
+      run: ./scripts/e2e.sh 
     - name: Build Bins
       run: ./scripts/bins.sh
