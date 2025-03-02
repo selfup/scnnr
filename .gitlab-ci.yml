@@ -13,6 +13,7 @@ release:
   script:
     - export CI=true
     - export VERSION=$CI_PIPELINE_IID
+    - ./scripts/e2e.sh
     - go run cmd/pack/main.go
     - go run cmd/checksum/main.go
     - cat scnnr_bins.zip.sha256
