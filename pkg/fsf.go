@@ -79,14 +79,16 @@ func (f *FileSizeFinder) findFiles(directory string) {
 	}
 
 	for _, file := range files {
-		if file.Size() >= f.Size {
-			f.mutex.Lock()
+		if file != nil {
+			if file.Size() >= f.Size {
+				f.mutex.Lock()
 
-			fullFilePath := directory + f.Direction + file.Name()
+				fullFilePath := directory + f.Direction + file.Name()
 
-			f.Files = append(f.Files, fullFilePath)
+				f.Files = append(f.Files, fullFilePath)
 
-			f.mutex.Unlock()
+				f.mutex.Unlock()
+			}
 		}
 	}
 
