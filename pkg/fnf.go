@@ -38,11 +38,11 @@ func (f *FileNameFinder) findFiles(directory string) {
 		if file != nil {
 			fileName := file.Name()
 
+			fullFilePath := FullFilePath(directory, directory, file)
+
 			for _, keyword := range f.Keywords {
 				if strings.Contains(fileName, keyword) {
 					f.mutex.Lock()
-
-					fullFilePath := directory + f.Direction + file.Name()
 
 					f.Files = append(f.Files, fullFilePath)
 

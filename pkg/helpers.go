@@ -5,6 +5,12 @@ import (
 	"runtime"
 )
 
+func FullFilePath(directory, direction string, file os.FileInfo) string {
+	fileName := file.Name()
+
+	return directory + direction + fileName
+}
+
 func PathDirection() string {
 	if runtime.GOOS == "windows" {
 		return "\\"

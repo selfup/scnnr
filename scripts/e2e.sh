@@ -33,3 +33,9 @@ go run main.go -k main,const,let,var,for -p $HOME
 echo "--- SCANNER DRY RUN: DONE ---"
 
 sleep 2
+
+echo "--- FILE FINGERPRINT FINDER DRY RUN: BEGIN---"
+
+go run main.go -m fff -k $(go run cmd/checksum/main.go) -p .
+
+echo "--- FILE FINGERPRINT FINDER DRY RUN: DONE---"

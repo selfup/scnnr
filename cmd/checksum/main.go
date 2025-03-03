@@ -22,6 +22,8 @@ func main() {
 	sumStr := fmt.Sprintf("%x", sum)
 	sumStrBytes := []byte(sumStr + "  " + source + "\n")
 
+	fmt.Println(sumStr)
+
 	writeErr := os.WriteFile(destination, sumStrBytes, os.ModePerm)
 	if writeErr != nil {
 		log.Fatalln(writeErr)

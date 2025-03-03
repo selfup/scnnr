@@ -130,5 +130,15 @@ func main() {
 		for _, file := range nfsf.Files {
 			fmt.Println(file)
 		}
+	} else if mode == "fff" {
+		keywords = strings.Split(kwd, ",")
+
+		nfff := scnnr.NewFileFingerprintFinder(keywords)
+
+		nfff.Scan(directory)
+
+		for _, file := range nfff.Files {
+			fmt.Println(file)
+		}
 	}
 }

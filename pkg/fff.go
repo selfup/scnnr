@@ -2,7 +2,7 @@ package scnnr
 
 import (
 	"crypto/sha256"
-	"io"
+	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -38,29 +38,21 @@ func (f *FileFingerprintFinder) findFiles(directory string) {
 
 	for _, file := range files {
 		if file != nil {
-			target, err := os.Open("file.txt")
+			fullFilePath := FullFilePath(directory, f.Direction, file)
 
+			zip, err := os.ReadFile(fullFilePath)
 			if err != nil {
 				panic(err)
 			}
 
-			defer target.Close()
-
-			hash := sha256.New()
-
-			if _, err := io.Copy(hash, target); err != nil {
-				panic(err)
-			}
-
-			sha := hash.Sum(nil)
+			sum := sha256.Sum256(zip)
+			sumStr := fmt.Sprintf("%x", sum)
 
 			for _, fingerPrint := range f.FingerPrints {
-				shaString := string(sha)
+				shaString := string(sumStr)
 
 				if strings.Contains(shaString, fingerPrint) {
 					f.mutex.Lock()
-
-					fullFilePath := directory + f.Direction + file.Name()
 
 					f.Files = append(f.Files, fullFilePath)
 
