@@ -2,7 +2,6 @@ package scnnr
 
 import (
 	"os"
-	"runtime"
 	"sync"
 )
 
@@ -18,11 +17,7 @@ type FileSizeFinder struct {
 func NewFileSizeFinder(size string) *FileSizeFinder {
 	fsf := new(FileSizeFinder)
 
-	if runtime.GOOS == "windows" {
-		fsf.Direction = "\\"
-	} else {
-		fsf.Direction = "/"
-	}
+	fsf.Direction = PathDirection()
 
 	switch size {
 	case "1MB":
@@ -36,9 +31,9 @@ func NewFileSizeFinder(size string) *FileSizeFinder {
 	case "10GB":
 		fsf.Size = 10000000000
 	case "100GB":
-		fsf.Size = 1000000000000
+		fsf.Size = 100000000000
 	case "1TB":
-		fsf.Size = 1000000000000000
+		fsf.Size = 1000000000000
 	default:
 		panic("please provide a size 1MB 10MB 100MB 1GB 10GB 100GB 1TB")
 	}
@@ -48,35 +43,13 @@ func NewFileSizeFinder(size string) *FileSizeFinder {
 
 // Scan is a concurrent/parallel directory walker
 func (f *FileSizeFinder) Scan(directory string) {
-	_, err := os.ReadDir(directory)
-
-	if err != nil {
-		panic(err)
-	}
+	CheckDirOrPanic(directory)
 
 	f.findFiles(directory)
 }
 
 func (f *FileSizeFinder) findFiles(directory string) {
-	paths, _ := os.ReadDir(directory)
-
-	var dirs []os.FileInfo
-	var files []os.FileInfo
-
-	for _, path := range paths {
-		fullPath := directory + f.Direction + path.Name()
-
-		if path.IsDir() {
-			p, _ := os.Stat(fullPath)
-
-			dirs = append(dirs, p)
-		} else {
-
-			f, _ := os.Stat(fullPath)
-
-			files = append(files, f)
-		}
-	}
+	files, dirs := CollectFilesAndDirs(directory, f.Direction)
 
 	for _, file := range files {
 		if file != nil {

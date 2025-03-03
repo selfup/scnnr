@@ -2,7 +2,6 @@ package scnnr
 
 import (
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -19,11 +18,7 @@ type FileNameFinder struct {
 func NewFileNameFinder(keywords []string) *FileNameFinder {
 	fnf := new(FileNameFinder)
 
-	if runtime.GOOS == "windows" {
-		fnf.Direction = "\\"
-	} else {
-		fnf.Direction = "/"
-	}
+	fnf.Direction = PathDirection()
 
 	fnf.Keywords = keywords
 
@@ -32,35 +27,12 @@ func NewFileNameFinder(keywords []string) *FileNameFinder {
 
 // Scan is a concurrent/parallel directory walker
 func (f *FileNameFinder) Scan(directory string) {
-	_, err := os.ReadDir(directory)
-
-	if err != nil {
-		panic(err)
-	}
-
+	CheckDirOrPanic(directory)
 	f.findFiles(directory)
 }
 
 func (f *FileNameFinder) findFiles(directory string) {
-	paths, _ := os.ReadDir(directory)
-
-	var dirs []os.FileInfo
-	var files []os.FileInfo
-
-	for _, path := range paths {
-		fullPath := directory + f.Direction + path.Name()
-
-		if path.IsDir() {
-			p, _ := os.Stat(fullPath)
-
-			dirs = append(dirs, p)
-		} else {
-
-			f, _ := os.Stat(fullPath)
-
-			files = append(files, f)
-		}
-	}
+	files, dirs := CollectFilesAndDirs(directory, f.Direction)
 
 	for _, file := range files {
 		if file != nil {
