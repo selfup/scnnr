@@ -36,6 +36,6 @@ sleep 2
 
 echo "--- FILE FINGERPRINT FINDER DRY RUN: BEGIN---"
 
-go run main.go -m fff -k $(go run cmd/checksum/main.go) -p .
+go run main.go -m fff -k $(go run cmd/checksum/main.go) -d .
 
 echo "--- FILE FINGERPRINT FINDER DRY RUN: DONE---"

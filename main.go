@@ -43,18 +43,20 @@ func main() {
     mode that scnnr will run in
 
     options are:
-      (scn) for scnnr
-      (fnf) for File/NameFinder
-      (fsf) for File/SizeFinder
+	(scn) for scnnr (default)
+	(fnf) for File/NameFinder
+	(fsf) for File/SizeFinder
+	(fff) for File/FingerprintFinder (uses SHA2-256)
 
-    ex: scnnr -d / -k password,token,authorization
-    ex: scnnr -m fsf -s 100MB -d E:/LotsOfStuff
-    ex: scnnr -m fnf -f DEFCON -p /tmp,/usr,/etc,$HOME/Documents
-    
+    ex: scnnr -d $HOME/Documents -k password,token,authorization
+    ex: scnnr -m fsf -d E:/ -s 100MB
+    ex: scnnr -m fnf -p /tmp,$HOME/Documents -f DEFCON
+    ex: scnnr -m fff -d $HOME/Documents -k de4f51f97fa690026e225798ff294cd182b93847aaa46fe1e32b848eb9e985bd
+
 `)
 
 	var dir string
-	flag.StringVar(&dir, "d", ".", `OPTIONAL Scnnr MODE
+	flag.StringVar(&dir, "d", ".", `OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
     directory where scnnr will scan
     default is current directory and all child directories`)
 
@@ -64,10 +66,11 @@ func main() {
     if none are given all files will be searched`)
 
 	var kwd string
-	flag.StringVar(&kwd, "k", "", `OPTIONAL Scnnr MODE
-    a comma delimited list of characters to look for in a file
-    if no keywords are given - all file paths of given file extensions will be returned
-    if keywords are given - only filepaths of matches will be returned`)
+	flag.StringVar(&kwd, "k", "", `OPTIONAL Scnnr MODE and REQUIRED FingerprintFinder
+    scnnr: this is a comma delimited list of characters to look for in a file
+        if no keywords are given - all file paths of given file extensions will be returned
+        if keywords are given - only filepaths of matches will be returned
+    FingerprintFinder: this is a comma delimited list of SHA2-256 hashes to find files by`)
 
 	var rgx bool
 	flag.BoolVar(&rgx, "r", false, `OPTIONAL Scnnr MODE
@@ -76,7 +79,6 @@ func main() {
     truthy values are: 1, t, T, true, True, TRUE
     falsy values are: 0, f, F, false, False, FALSE`)
 
-	// FileNameFinder mode
 	var paths string
 	flag.StringVar(&paths, "p", "", `REQUIRED NameFinder MODE
     any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'`)
@@ -132,6 +134,10 @@ func main() {
 		}
 	} else if mode == "fff" {
 		keywords = strings.Split(kwd, ",")
+
+		if keywords[0] == "" {
+			log.Fatal("-k (known hashes) REQUIRED for FileFingerprintFinder")
+		}
 
 		nfff := scnnr.NewFileFingerprintFinder(keywords)
 
