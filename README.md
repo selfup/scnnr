@@ -2,27 +2,27 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Scnnr](#scnnr)
-  - [Examples (scn mode)](#examples)
     - [Help](#help)
     - [No Keywords](#no-keywords)
     - [Single Keyword](#single-keyword)
     - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
-- [FileNameFinder](#file-name-finder-namefinder-fnf)
-- [FileSizeFinder](#file-size-finder-sizefinder-fsf)
-- [BackToScnnr](#back-to-scnnr)
+- [File Name Finder (NameFinder) (fnf)](#file-name-finder-namefinder-fnf)
+- [File Fingerprint Finder (FingerprintFinder) (fff)](#file-fingerprint-finder-fingerprintfinder-fff)
+- [File Size Finder (SizeFinder) (fsf)](#file-size-finder-sizefinder-fsf)
+- [Back to Scnnr](#back-to-scnnr)
     - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg)
   - [Regex](#regex)
     - [Using Regex Patterns](#using-regex-patterns)
     - [Using the package github.com/selfup/scnnr/pkg](#using-the-package-githubcomselfupscnnrpkg-1)
-  - [Install](#install)
+- [Install](#install)
     - [If you have Go](#if-you-have-go)
     - [If you do not have Go](#if-you-do-not-have-go)
       - [Release Binaries](#release-binaries)
       - [Direct Download Link](#direct-download-link)
       - [cURL](#curl)
       - [wget](#wget)
-      - [Docker](#docker)
-  - [Performance](#performance)
+    - [Docker](#docker)
+- [Performance (scn)](#performance-scn)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -34,9 +34,11 @@ Prints out a `\n` delimited string of each file (filepath in artifact) containin
 
 Max file descriptors is set to 1024 (linux default) in scnnr scn mode.
 
-## Examples
+Has 3 additional modes: FileSizeFinder (find a file above a certain size), FileNameFinder (fuzzy find files with certain keywords in the filename), and FileFingerprintFinder (find files based on their SHA2-256 hash)
 
 `scn` mode is the default
+
+_Caveat: will not throw an error if a file cannot be read due to permissions. It is assumed that you know what files you can read/have access to. This allows for a clean/parseable output_
 
 ### Help
 
@@ -45,7 +47,7 @@ Call scnnr with the `-h` flag:
 ```
 $ scnnr -h
   -d string
-        OPTIONAL Scnnr MODE
+        OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
             directory where scnnr will scan
             default is current directory and all child directories (default ".")
   -e string
@@ -56,23 +58,26 @@ $ scnnr -h
         REQUIRED NameFinder MODE
             fuzzy find the filename(s) contain(s) - can be comma delimited: Example 'wow' or 'wow,omg,lol'
   -k string
-        OPTIONAL Scnnr MODE
-            a comma delimited list of characters to look for in a file
-            if no keywords are given - all file paths of given file extensions will be returned
-            if keywords are given - only filepaths of matches will be returned
+        OPTIONAL Scnnr MODE and REQUIRED FingerprintFinder
+            scnnr: this is a comma delimited list of characters to look for in a file
+                if no keywords are given - all file paths of given file extensions will be returned
+                if keywords are given - only filepaths of matches will be returned
+            FingerprintFinder: this is a comma delimited list of SHA2-256 hashes to find files by
   -m string
         OPTIONAL
             mode that scnnr will run in
-
+    
             options are:
-              (scn) for scnnr
-              (fnf) for File/NameFinder
-              (fsf) for File/SizeFinder
-
-            ex: scnnr -d / -k password,token,authorization
-            ex: scnnr -m fsf -s 100MB -d E:/LotsOfStuff
-            ex: scnnr -m fnf -f DEFCON -p /tmp,/usr,/etc,$HOME/Documents
-
+                (scn) for scnnr (default)
+                (fnf) for File/NameFinder
+                (fsf) for File/SizeFinder
+                (fff) for File/FingerprintFinder (uses SHA2-256)
+    
+            ex: scnnr -d $HOME/Documents -k password,token,authorization
+            ex: scnnr -m fsf -d E:/ -s 100MB
+            ex: scnnr -m fnf -p /tmp,$HOME/Documents -f DEFCON
+            ex: scnnr -m fff -d $HOME/Documents -k de4f51f97fa690026e225798ff294cd182b93847aaa46fe1e32b848eb9e985bd
+    
          (default "scn")
   -p string
         REQUIRED NameFinder MODE
@@ -105,7 +110,7 @@ README.md
 
 Do not provide any keywords and scnnr will return all given filepaths matching given extensions.
 
-If no extensions are given, all filepaths will be returned in the scanned directory.
+If no extensions are given, all filepaths will be returned in the scanned directory. This will walk all dirs!
 
 ### Single Keyword
 
@@ -153,6 +158,35 @@ Example use to search `/tmp`, `/etc`, `/usr`, and `$HOME/Documents` for filename
 ```bash
 scnnr -m fnf -f DEFCON,Finance,Tax,Return -p /tmp,/usr,/etc,$HOME/Documents
 ```
+
+# File Fingerprint Finder (FingerprintFinder) (fff)
+
+```
+  -d string
+        OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
+            directory where scnnr will scan
+            default is current directory and all child directories (default ".")
+  -k string
+        OPTIONAL Scnnr MODE and REQUIRED FingerprintFinder
+            scnnr: this is a comma delimited list of characters to look for in a file
+                if no keywords are given - all file paths of given file extensions will be returned
+                if keywords are given - only filepaths of matches will be returned
+            FingerprintFinder: this is a comma delimited list of SHA2-256 hashes to find files by
+```
+
+Example use to find a file with a known hash:
+
+```bash
+$ known_hash="de4f51f97fa690026e225798ff294cd182b93847aaa46fe1e32b848eb9e985bd"
+$ go run main.go -m fff -d $HOME/Documents -k $known_hash
+/home/selfup/Documents//dotfiles/mac/.bash_profile
+```
+
+Please refer to the release notes for more details:
+
+GitHub: https://github.com/selfup/scnnr/releases/tag/v1.1.8
+
+Gitlab: https://gitlab.com/selfup/scnnr/-/releases/v1.1.8
 
 # File Size Finder (SizeFinder) (fsf)
 
@@ -238,12 +272,20 @@ if err != nil {
 }
 ```
 
-## Install
+# Install
 
 ### If you have Go
 
+GitHub repo:
+
 ```bash
 go install github.com/selfup/scnnr@latest
+```
+
+GitLab repo:
+
+```bash
+go install gitlab.com/selfup/scnnr@latest
 ```
 
 ### If you do not have Go
@@ -268,11 +310,40 @@ curl -L https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=rel
 wget https://gitlab.com/selfup/scnnr/-/jobs/artifacts/master/download?job=release -O artifacts.zip
 ```
 
-_the sha256 sum is provided in the artifact zip of the `scnnr_bins.zip`_
+_the sha2-256 sum is provided in the artifact zip of the `scnnr_bins.zip`_
 
 _you can also verify the provided sum matches the output in CI (output for verification)_
 
 1. Unzip `artifacts.zip`
+1. Unzip `scnnr_bins.zip`
+
+From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path! Mac and Linux builds have both intel and arm builds.
+
+```
+scnnr_bins/linux/intel:
+scnnr
+
+scnnr_bins/linux/arm:
+scnnr
+
+scnnr_bins/mac/intel:
+scnnr
+
+scnnr_bins/mac/arm:
+scnnr
+
+scnnr_bins/windows:
+scnnr.exe
+```
+
+### Docker
+
+1. Clone repo: `git clone https://github.com/selfup/scnnr`
+1. `cd` into repo
+
+   - Shell: `./scripts/dind.build.sh`
+   - Powershell: `./scripts/dind.build.ps1`
+
 1. Unzip `scnnr_bins.zip`
 
 From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
@@ -294,32 +365,7 @@ scnnr_bins/windows:
 scnnr.exe
 ```
 
-#### Docker
-
-1. Clone repo: `git clone https://github.com/selfup/scnnr`
-1. `cd` into repo
-
-   - Shell: `./scripts/dind.build.sh`
-   - Powershell: `./scripts/dind.build.ps1`
-
-1. Unzip `scnnr_bins.zip`
-
-From here pick your arch (mac/windows/linux) and appropriate binary and move to needed path!
-
-```
-scnnr_bins/linux:
-scnnr
-
-scnnr_bins/mac:
-scnnr
-
-scnnr_bins/windows:
-scnnr.exe
-```
-
 ## Performance (scn)
-
-_I will add perf numbers for fnf and fsf modes soon!_
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
 
