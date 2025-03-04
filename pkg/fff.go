@@ -40,10 +40,7 @@ func (f *FileFingerprintFinder) findFiles(directory string) {
 		if file != nil {
 			fullFilePath := FullFilePath(directory, f.Direction, file)
 
-			zip, err := os.ReadFile(fullFilePath)
-			if err != nil {
-				panic(err)
-			}
+			zip, _ := os.ReadFile(fullFilePath)
 
 			sum := sha256.Sum256(zip)
 			sumStr := fmt.Sprintf("%x", sum)
@@ -70,6 +67,7 @@ func (f *FileFingerprintFinder) findFiles(directory string) {
 
 		for _, dir := range dirs {
 			go func(dirInfo os.FileInfo, dirName string, pathDirection string) {
+
 				f.findFiles(dirName + pathDirection + dirInfo.Name())
 
 				dirGroup.Done()
