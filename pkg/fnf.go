@@ -36,11 +36,13 @@ func (f *FileNameFinder) findFiles(directory string) {
 
 	for _, file := range files {
 		if file != nil {
-			for _, keyword := range f.Keywords {
-				if strings.Contains(file.Name(), keyword) {
-					f.mutex.Lock()
+			fileName := file.Name()
 
-					fullFilePath := directory + f.Direction + file.Name()
+			fullFilePath := FullFilePath(directory, directory, file)
+
+			for _, keyword := range f.Keywords {
+				if strings.Contains(fileName, keyword) {
+					f.mutex.Lock()
 
 					f.Files = append(f.Files, fullFilePath)
 

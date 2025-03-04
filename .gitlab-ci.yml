@@ -17,10 +17,13 @@ release:
     - go run main.go -m fnf -f main,DEFCON -p $HOME
     - go run main.go -k main,const,let,var,for -p $HOME
     - go run cmd/pack/main.go
-    - go run cmd/checksum/main.go
+    - go run main.go -m fff -k $(go run cmd/checksum/main.go) -p .
     - cat scnnr_bins.zip.sha256
 
   artifacts:
     paths:
       - scnnr_bins.zip
       - scnnr_bins.zip.sha256
+      - LICENSE
+      - README.md
+
