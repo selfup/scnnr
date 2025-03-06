@@ -146,5 +146,11 @@ func main() {
 		for _, file := range nfff.Files {
 			fmt.Println(file)
 		}
+	} else if mode == "ftf" {
+		nftf := scnnr.NewFileTotalFinder(keywords)
+
+		nftf.Scan(directory)
+
+		fmt.Println(len(nftf.Files))
 	}
 }

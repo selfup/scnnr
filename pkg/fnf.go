@@ -28,6 +28,7 @@ func NewFileNameFinder(keywords []string) *FileNameFinder {
 // Scan is a concurrent/parallel directory walker
 func (f *FileNameFinder) Scan(directory string) {
 	CheckDirOrPanic(directory)
+
 	f.findFiles(directory)
 }
 

@@ -30,6 +30,7 @@ func NewFileFingerprintFinder(fingerPrints []string) *FileFingerprintFinder {
 // Scan is a concurrent/parallel directory walker
 func (f *FileFingerprintFinder) Scan(directory string) {
 	CheckDirOrPanic(directory)
+
 	f.findFiles(directory)
 }
 
