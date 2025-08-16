@@ -146,6 +146,7 @@ cmd/scanner.go
 ### Keywords with line numbers
 
 ```bash
+$ scnnr -d . -e .md,.go -k fileData,cache -l
 scnnr_bins/README.md:117:cache
 scnnr_bins/README.md:122:cache
 scnnr_bins/README.md:129:cache
@@ -167,6 +168,7 @@ pkg/scanner.go:222:fileData
 ### Keywords with both line numbers and column numbers
 
 ```bash
+$ scnnr -d . -e .md,.go -k fileData,cache -c
 scnnr_bins/README.md:117:53:cache
 scnnr_bins/README.md:122:29:cache
 scnnr_bins/README.md:129:22:cache
