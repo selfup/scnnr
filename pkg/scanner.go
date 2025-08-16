@@ -21,6 +21,8 @@ type Scanner struct {
 	FileExtensions   []string
 	Keywords         []string
 	KeywordMatches   []string
+	ExcludeDirs      []string
+	ExcludeExts      []string
 	AllMatches       []Match
 	MatchedFilePaths []FileData
 }
@@ -112,13 +114,23 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
+	// Check if directory should be excluded
+	if info.IsDir() && s.shouldExcludeDir(filepath.Base(path)) {
+		return filepath.SkipDir
+	}
+
 	if !info.IsDir() {
+		fileExtension := filepath.Ext(path)
+
+		// Check if file extension should be excluded
+		if s.shouldExcludeExt(fileExtension) {
+			return nil
+		}
+
 		if s.FileExtensions[0] == "" {
 			s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
 		} else {
 			for _, pattern := range s.FileExtensions {
-				fileExtension := filepath.Ext(path)
-
 				if fileExtension == pattern {
 					s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
 				}
@@ -206,6 +218,26 @@ func (s *Scanner) parse(match FileData) {
 	check(scanner.Err())
 
 	file.Close()
+}
+
+// shouldExcludeDir checks if a directory name should be excluded
+func (s *Scanner) shouldExcludeDir(dirName string) bool {
+	for _, excludeDir := range s.ExcludeDirs {
+		if dirName == excludeDir {
+			return true
+		}
+	}
+	return false
+}
+
+// shouldExcludeExt checks if a file extension should be excluded
+func (s *Scanner) shouldExcludeExt(ext string) bool {
+	for _, excludeExt := range s.ExcludeExts {
+		if ext == excludeExt {
+			return true
+		}
+	}
+	return false
 }
 
 func eachSlice(files []FileData) [][]FileData {
