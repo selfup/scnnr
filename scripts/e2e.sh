@@ -9,6 +9,10 @@ then
     e2e_dir=$ETE_DIR
 fi
 
+##################################################
+##################################################
+##################################################
+
 echo "--- FILE SIZE FINDER DRY RUN: BEGIN ---"
 
 go run main.go -m fsf -s 1MB -d $e2e_dir
@@ -41,6 +45,10 @@ echo "--- SCANNER DRY RUN: DONE ---"
 
 sleep 2
 
+##################################################
+##################################################
+##################################################
+
 echo "--- FILE FINGERPRINT FINDER DRY RUN: BEGIN---"
 
 go run main.go -m fff -k $(go run cmd/checksum/main.go) -d .
@@ -48,6 +56,10 @@ go run main.go -m fff -k $(go run cmd/checksum/main.go) -d .
 echo "--- FILE FINGERPRINT FINDER DRY RUN: DONE---"
 
 sleep 2
+
+##################################################
+##################################################
+##################################################
 
 echo "--- SCANNER LINE RUN: BEGIN---"
 
@@ -57,6 +69,10 @@ echo "--- SCANNER LINE RUN: DONE ---"
 
 sleep 2
 
+##################################################
+##################################################
+##################################################
+
 echo "--- SCANNER LINE AND COL RUN: BEGIN---"
 
 go run main.go -k main,const,let,var,for -p $e2e_dir -c
@@ -64,6 +80,10 @@ go run main.go -k main,const,let,var,for -p $e2e_dir -c
 echo "--- SCANNER LINE AND COL RUN: DONE ---"
 
 sleep 2
+
+##################################################
+##################################################
+##################################################
 
 echo "--- SCANNER DIR EXCLUDE RUN: BEGIN---"
 
@@ -75,6 +95,10 @@ echo "--- SCANNER DIR EXCLUDE RUN: DONE ---"
 
 sleep 2
 
+##################################################
+##################################################
+##################################################
+
 echo "--- SCANNER EXTENSION EXCLUDE RUN: BEGIN---"
 
 go run main.go -k main,const,let,var,for -p $e2e_dir -c -xe ".yml,.sh,.md"
@@ -82,6 +106,10 @@ go run main.go -k main,const,let,var,for -p $e2e_dir -c -xe ".yml,.sh,.md"
 echo "--- SCANNER EXTENSION RUN: DONE ---"
 
 sleep 2
+
+##################################################
+##################################################
+##################################################
 
 echo "--- SCANNER DIRECTORY AND EXTENSION EXCLUDE RUN: BEGIN---"
 
