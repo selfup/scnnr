@@ -44,7 +44,7 @@ sleep 2
 
 echo "--- SCANNER LINE RUN: BEGIN---"
 
-go run main.go -k main,const,let,var,for -p $HOME -c
+go run main.go -k main,const,let,var,for -p $HOME -l
 
 echo "--- SCANNER LINE RUN: DONE ---"
 
