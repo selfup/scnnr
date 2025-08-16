@@ -46,6 +46,9 @@ Call scnnr with the `-h` flag:
 
 ```
 $ scnnr -h
+  -c    OPTIONAL Scnnr MODE
+            show line and column numbers for each match (requires -k)
+            when enabled, finds ALL matches in files (no early exit)
   -d string
         OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
             directory where scnnr will scan
@@ -63,6 +66,9 @@ $ scnnr -h
                 if no keywords are given - all file paths of given file extensions will be returned
                 if keywords are given - only filepaths of matches will be returned
             FingerprintFinder: this is a comma delimited list of SHA2-256 hashes to find files by
+  -l    OPTIONAL Scnnr MODE
+            show line numbers for each match (requires -k)
+            when enabled, finds ALL matches in files (no early exit)
   -m string
         OPTIONAL
             mode that scnnr will run in
@@ -135,6 +141,50 @@ scnnr -e .md -d . -k cache=
 $ scnnr -d . -e .md,.go -k fileData,cache
 README.md
 cmd/scanner.go
+```
+
+### Keywords with line numbers
+
+```bash
+$ scnnr -d . -e .md,.go -k fileData,cache -l
+scnnr_bins/README.md:117:cache
+scnnr_bins/README.md:122:cache
+scnnr_bins/README.md:129:cache
+scnnr_bins/README.md:135:fileData
+scnnr_bins/README.md:135:cache
+README.md:123:cache
+README.md:128:cache
+README.md:135:cache
+README.md:141:fileData
+README.md:141:cache
+scnnr_bins/README.md:377:cache
+scnnr_bins/README.md:387:cache
+README.md:383:cache
+README.md:393:cache
+pkg/scanner.go:215:fileData
+pkg/scanner.go:222:fileData
+```
+
+### Keywords with both line numbers and column numbers
+
+```bash
+$ scnnr -d . -e .md,.go -k fileData,cache -c
+scnnr_bins/README.md:117:53:cache
+scnnr_bins/README.md:122:29:cache
+scnnr_bins/README.md:129:22:cache
+scnnr_bins/README.md:135:28:fileData
+scnnr_bins/README.md:135:37:cache
+scnnr_bins/README.md:377:36:cache
+scnnr_bins/README.md:387:40:cache
+pkg/scanner.go:215:9:fileData
+pkg/scanner.go:222:26:fileData
+README.md:123:53:cache
+README.md:128:29:cache
+README.md:135:22:cache
+README.md:141:28:fileData
+README.md:141:37:cache
+README.md:383:36:cache
+README.md:393:40:cache
 ```
 
 # File Name Finder (NameFinder) (fnf)

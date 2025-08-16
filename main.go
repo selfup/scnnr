@@ -79,6 +79,16 @@ func main() {
     truthy values are: 1, t, T, true, True, TRUE
     falsy values are: 0, f, F, false, False, FALSE`)
 
+	var showLines bool
+	flag.BoolVar(&showLines, "l", false, `OPTIONAL Scnnr MODE
+    show line numbers for each match (requires -k)
+    when enabled, finds ALL matches in files (no early exit)`)
+
+	var showCols bool
+	flag.BoolVar(&showCols, "c", false, `OPTIONAL Scnnr MODE
+    show line and column numbers for each match (requires -k)
+    when enabled, finds ALL matches in files (no early exit)`)
+
 	var paths string
 	flag.StringVar(&paths, "p", "", `REQUIRED NameFinder MODE
     any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'`)
@@ -95,7 +105,8 @@ func main() {
 
 	directory = dir
 
-	if mode == "fnf" {
+	switch mode {
+	case "fnf":
 		scanFuzzy := strings.Split(fuzzy, ",")
 		scanPaths := strings.Split(paths, ",")
 
@@ -108,15 +119,21 @@ func main() {
 		for _, file := range nfnf.Files {
 			fmt.Println(file)
 		}
-	} else if mode == "scn" {
+	case "scn":
 		extensions = strings.Split(ext, ",")
 		keywords = strings.Split(kwd, ",")
+
+		if (showLines || showCols) && keywords[0] == "" {
+			log.Fatal("Position tracking flags (-l, -c) require keywords (-k)")
+		}
 
 		scanner := scnnr.Scanner{
 			Regex:          rgx,
 			Keywords:       keywords,
 			Directory:      directory,
 			FileExtensions: extensions,
+			ShowLines:      showLines,
+			ShowCols:       showCols,
 		}
 
 		err := scanner.Scan()
@@ -124,7 +141,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else if mode == "fsf" {
+	case "fsf":
 		nfsf := scnnr.NewFileSizeFinder(size)
 
 		nfsf.Scan(directory)
@@ -132,7 +149,7 @@ func main() {
 		for _, file := range nfsf.Files {
 			fmt.Println(file)
 		}
-	} else if mode == "fff" {
+	case "fff":
 		keywords = strings.Split(kwd, ",")
 
 		if keywords[0] == "" {

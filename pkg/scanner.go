@@ -15,10 +15,13 @@ import (
 type Scanner struct {
 	sync.Mutex
 	Regex            bool
+	ShowLines        bool
+	ShowCols         bool
 	Directory        string
 	FileExtensions   []string
 	Keywords         []string
 	KeywordMatches   []string
+	AllMatches       []Match
 	MatchedFilePaths []FileData
 }
 
@@ -26,6 +29,14 @@ type Scanner struct {
 type FileData struct {
 	Path string
 	Info os.FileInfo
+}
+
+// Match represents a single keyword match with position information
+type Match struct {
+	Path    string
+	Line    int
+	Column  int
+	Keyword string
 }
 
 // Scan walks the given directory tree and stores all matching files into a slice
@@ -61,11 +72,39 @@ func (s *Scanner) Scan() error {
 
 			wg.Wait()
 		}
+
+		// Output results based on position tracking settings
+		if s.ShowLines || s.ShowCols {
+			s.outputPositionMatches()
+		} else {
+			// Original behavior
+			fmt.Println(strings.Join(s.KeywordMatches, "\n"))
+		}
 	}
 
-	fmt.Println(strings.Join(s.KeywordMatches, "\n"))
-
 	return nil
+}
+
+// outputPositionMatches formats and outputs matches with position information
+func (s *Scanner) outputPositionMatches() {
+	for _, match := range s.AllMatches {
+		output := match.Path
+
+		if s.ShowCols {
+			// -c flag shows both line and column
+			output = fmt.Sprintf("%s:%d:%d", output, match.Line, match.Column)
+		} else if s.ShowLines {
+			// -l flag shows only line
+			output = fmt.Sprintf("%s:%d", output, match.Line)
+		}
+
+		// If multiple keywords, append the matching keyword
+		if len(s.Keywords) > 1 {
+			output = fmt.Sprintf("%s:%s", output, match.Keyword)
+		}
+
+		fmt.Println(output)
+	}
 }
 
 func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
@@ -106,38 +145,58 @@ func (s *Scanner) parse(match FileData) {
 
 	found := false
 
+	lineNumber := 0
+
+	positionTracking := s.ShowLines || s.ShowCols
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		lineNumber++
+
 		for i := 0; i < len(s.Keywords); i++ {
-			if found {
+			if !positionTracking && found {
 				break
 			}
+
+			matchFound := false
+			var column int
 
 			if s.Regex {
 				re := regexp.MustCompile(s.Keywords[i])
 
-				if re.Match([]byte(line)) {
-					s.Lock()
-
-					s.KeywordMatches = append(s.KeywordMatches, match.Path)
-
-					found = true
-
-					s.Unlock()
-
-					break
+				if loc := re.FindStringIndex(line); loc != nil {
+					matchFound = true
+					column = loc[0] + 1
 				}
 			} else {
-				if strings.Contains(line, s.Keywords[i]) {
-					s.Lock()
+				if idx := strings.Index(line, s.Keywords[i]); idx != -1 {
+					matchFound = true
+					column = idx + 1
+				}
+			}
 
+			if matchFound {
+				s.Lock()
+
+				if positionTracking {
+					match := Match{
+						Path:    match.Path,
+						Line:    lineNumber,
+						Column:  column,
+						Keyword: s.Keywords[i],
+					}
+
+					s.AllMatches = append(s.AllMatches, match)
+				} else {
 					s.KeywordMatches = append(s.KeywordMatches, match.Path)
 
 					found = true
+				}
 
-					s.Unlock()
+				s.Unlock()
 
+				if !positionTracking {
 					break
 				}
 			}
