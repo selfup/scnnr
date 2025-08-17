@@ -6,6 +6,9 @@
     - [No Keywords](#no-keywords)
     - [Single Keyword](#single-keyword)
     - [Multiple Keywords and Multiple File Extensions](#multiple-keywords-and-multiple-file-extensions)
+    - [Keywords with line numbers](#keywords-with-line-numbers)
+    - [Keywords with both line numbers and column numbers](#keywords-with-both-line-numbers-and-column-numbers)
+    - [Keywords while excluding dirs and file extensions](#keywords-while-excluding-dirs-and-file-extensions)
 - [File Name Finder (NameFinder) (fnf)](#file-name-finder-namefinder-fnf)
 - [File Fingerprint Finder (FingerprintFinder) (fff)](#file-fingerprint-finder-fingerprintfinder-fff)
 - [File Size Finder (SizeFinder) (fsf)](#file-size-finder-sizefinder-fsf)
@@ -145,6 +148,8 @@ scnnr -e .md -d . -k cache=
 
 ### Multiple Keywords and Multiple File Extensions
 
+_using -k_
+
 ```bash
 $ scnnr -d . -e .md,.go -k fileData,cache
 README.md
@@ -152,6 +157,8 @@ cmd/scanner.go
 ```
 
 ### Keywords with line numbers
+
+_using -l_
 
 ```bash
 $ scnnr -d . -e .md,.go -k fileData,cache -l
@@ -175,6 +182,8 @@ pkg/scanner.go:222:fileData
 
 ### Keywords with both line numbers and column numbers
 
+_using -c_
+
 ```bash
 $ scnnr -d . -e .md,.go -k fileData,cache -c
 scnnr_bins/README.md:117:53:cache
@@ -195,7 +204,9 @@ README.md:383:36:cache
 README.md:393:40:cache
 ```
 
-### Keywords while excluding dirs (-xd) and file extensions (-xe)
+### Keywords while excluding dirs and file extensions
+
+_using -xd and -xe_
 
 ```bash
 go run main.go -k main,let,for -p . -c -xd ".git,scnnr_bins,pkg,cmd,.zip" -xe ".yml,.sh,.md" 
