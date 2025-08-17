@@ -16,6 +16,7 @@ release:
     - go run main.go -m fsf -s 1MB -d $HOME
     - go run main.go -m fnf -f main,DEFCON -p $HOME
     - go run main.go -k main,const,let,var,for -p $HOME
+    - ETE_DIR=$HOME ./scripts/e2e.sh
     - go run cmd/pack/main.go
     - go run main.go -m fff -k $(go run cmd/checksum/main.go) -p .
     - cat scnnr_bins.zip.sha256
@@ -26,4 +27,3 @@ release:
       - scnnr_bins.zip.sha256
       - LICENSE
       - README.md
-

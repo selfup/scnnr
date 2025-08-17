@@ -96,6 +96,14 @@ $ scnnr -h
   -s string
         REQUIRED SizeFinder MODE
             size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB
+  -xd string
+        OPTIONAL Scnnr MODE
+            comma-delimited list of directory names to exclude from scanning
+            ex: -xd ".git,node_modules,.venv"
+  -xe string
+        OPTIONAL Scnnr MODE
+            comma-delimited list of file extensions to exclude from scanning
+            ex: -xe ".log,.tmp,.json"
 ```
 
 ### No Keywords
@@ -185,6 +193,37 @@ README.md:141:28:fileData
 README.md:141:37:cache
 README.md:383:36:cache
 README.md:393:40:cache
+```
+
+### Keywords while excluding dirs (-xd) and file extensions (-xe)
+
+```bash
+go run main.go -k main,let,for -p . -c -xd ".git,scnnr_bins,pkg,cmd,.zip" -xe ".yml,.sh,.md" 
+.editorconfig:11:21:let
+.gitignore:3:1:main
+.gitignore:4:1:main
+.dockerignore:3:1:main
+.dockerignore:4:1:main
+Dockerfile:14:21:main
+Dockerfile:15:25:main
+main.go:25:9:main
+main.go:36:6:main
+main.go:46:8:for
+main.go:47:8:for
+main.go:48:8:for
+main.go:49:8:for
+main.go:70:65:for
+main.go:78:57:for
+main.go:84:23:for
+main.go:89:34:for
+main.go:125:3:for
+main.go:129:3:for
+main.go:172:3:for
+main.go:179:42:for
+main.go:186:3:for
+scnnr_bins.zip:2053:93:for
+scnnr_bins.zip:26325:8:let
+scnnr_bins.zip:32123:53:let
 ```
 
 # File Name Finder (NameFinder) (fnf)

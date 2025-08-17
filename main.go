@@ -101,6 +101,16 @@ func main() {
 	flag.StringVar(&size, "s", "", `REQUIRED SizeFinder MODE
     size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB`)
 
+	var excludeDirs string
+	flag.StringVar(&excludeDirs, "xd", "", `OPTIONAL Scnnr MODE
+    comma-delimited list of directory names to exclude from scanning
+    ex: -xd ".git,node_modules,.venv"`)
+
+	var excludeExts string
+	flag.StringVar(&excludeExts, "xe", "", `OPTIONAL Scnnr MODE
+    comma-delimited list of file extensions to exclude from scanning
+    ex: -xe ".log,.tmp,.json"`)
+
 	flag.Parse()
 
 	directory = dir
@@ -127,6 +137,17 @@ func main() {
 			log.Fatal("Position tracking flags (-l, -c) require keywords (-k)")
 		}
 
+		var excludeDirsList []string
+		var excludeExtsList []string
+
+		if excludeDirs != "" {
+			excludeDirsList = strings.Split(excludeDirs, ",")
+		}
+
+		if excludeExts != "" {
+			excludeExtsList = strings.Split(excludeExts, ",")
+		}
+
 		scanner := scnnr.Scanner{
 			Regex:          rgx,
 			Keywords:       keywords,
@@ -134,6 +155,8 @@ func main() {
 			FileExtensions: extensions,
 			ShowLines:      showLines,
 			ShowCols:       showCols,
+			ExcludeDirs:    excludeDirsList,
+			ExcludeExts:    excludeExtsList,
 		}
 
 		err := scanner.Scan()

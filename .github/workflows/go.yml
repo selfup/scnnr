@@ -18,6 +18,6 @@ jobs:
     - name: Build Bins
       run: ./scripts/bins.sh
     - name: E2E
-      run: ./scripts/e2e.sh
+      run: ETE_DIR=$HOME ./scripts/e2e.sh
     - name: Print SHA
       run: cat scnnr_bins.zip.sha256
