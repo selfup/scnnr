@@ -5,7 +5,6 @@ release:
   only:
     refs:
       - master
-      - gitlab_ci_e2e_script
   
   stage: build
   
