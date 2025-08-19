@@ -1,3 +1,3 @@
-git push origin master
+git push origin -u HEAD
 
-git push release master
+git push release -u HEAD

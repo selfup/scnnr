@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -222,22 +223,12 @@ func (s *Scanner) parse(match FileData) {
 
 // shouldExcludeDir checks if a directory name should be excluded
 func (s *Scanner) shouldExcludeDir(dirName string) bool {
-	for _, excludeDir := range s.ExcludeDirs {
-		if dirName == excludeDir {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s.ExcludeDirs, dirName)
 }
 
 // shouldExcludeExt checks if a file extension should be excluded
 func (s *Scanner) shouldExcludeExt(ext string) bool {
-	for _, excludeExt := range s.ExcludeExts {
-		if ext == excludeExt {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s.ExcludeExts, ext)
 }
 
 func eachSlice(files []FileData) [][]FileData {
