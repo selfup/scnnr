@@ -244,9 +244,9 @@ pkg/testdata/tree/empty.txt
 
 Please refer to the release notes for more details:
 
-GitHub: https://github.com/selfup/scnnr/releases/tag/v1.1.8
+GitHub: https://github.com/selfup/scnnr/releases
 
-Gitlab: https://gitlab.com/selfup/scnnr/-/releases/v1.1.8
+Gitlab: https://gitlab.com/selfup/scnnr/-/releases
 
 # File Size Finder (SizeFinder) (fsf)
 
