@@ -2,23 +2,18 @@ package scnnr
 
 import (
 	"os"
-	"runtime"
 )
 
+// FullFilePath uses the supplied direction verbatim, as in the original API.
 func FullFilePath(directory, direction string, file os.FileInfo) string {
-	fileName := file.Name()
-
-	return directory + direction + fileName
+	return directory + direction + file.Name()
 }
 
 func PathDirection() string {
-	if runtime.GOOS == "windows" {
-		return "\\"
-	} else {
-		return "/"
-	}
+	return string(os.PathSeparator)
 }
 
+// CheckDirOrPanic panics when the root directory cannot be read.
 func CheckDirOrPanic(directory string) {
 	_, err := os.ReadDir(directory)
 
@@ -27,6 +22,7 @@ func CheckDirOrPanic(directory string) {
 	}
 }
 
+// CollectFilesAndDirs preserves the original best-effort directory collection.
 func CollectFilesAndDirs(directory string, direction string) ([]os.FileInfo, []os.FileInfo) {
 	paths, _ := os.ReadDir(directory)
 

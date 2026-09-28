@@ -1,11 +1,12 @@
 package scnnr
 
 import (
+	"fmt"
 	"os"
 	"sync"
 )
 
-// FileSizeFinder struct contains needed data to perform concurrent operations
+// FileSizeFinder finds files at least Size bytes long.
 type FileSizeFinder struct {
 	mutex     sync.Mutex
 	Files     []string
@@ -13,35 +14,40 @@ type FileSizeFinder struct {
 	Size      int64
 }
 
-// NewFileSizeFinder creates a pointer to FileSizeFinder with default values
-func NewFileSizeFinder(size string) *FileSizeFinder {
-	fsf := new(FileSizeFinder)
-
-	fsf.Direction = PathDirection()
-
+// ParseSize converts one of the supported decimal size thresholds into bytes.
+func ParseSize(size string) (int64, error) {
 	switch size {
 	case "1MB":
-		fsf.Size = 1000000
+		return 1000000, nil
 	case "10MB":
-		fsf.Size = 10000000
+		return 10000000, nil
 	case "100MB":
-		fsf.Size = 100000000
+		return 100000000, nil
 	case "1GB":
-		fsf.Size = 1000000000
+		return 1000000000, nil
 	case "10GB":
-		fsf.Size = 10000000000
+		return 10000000000, nil
 	case "100GB":
-		fsf.Size = 100000000000
+		return 100000000000, nil
 	case "1TB":
-		fsf.Size = 1000000000000
+		return 1000000000000, nil
 	default:
+		return 0, fmt.Errorf("invalid size %q: please provide a size 1MB 10MB 100MB 1GB 10GB 100GB 1TB", size)
+	}
+}
+
+// NewFileSizeFinder preserves the original panic for unsupported thresholds.
+func NewFileSizeFinder(size string) *FileSizeFinder {
+	threshold, err := ParseSize(size)
+
+	if err != nil {
 		panic("please provide a size 1MB 10MB 100MB 1GB 10GB 100GB 1TB")
 	}
 
-	return fsf
+	return &FileSizeFinder{Direction: PathDirection(), Size: threshold}
 }
 
-// Scan is a concurrent/parallel directory walker
+// Scan preserves the original void API, root panic, and append behavior.
 func (f *FileSizeFinder) Scan(directory string) {
 	CheckDirOrPanic(directory)
 
@@ -49,36 +55,16 @@ func (f *FileSizeFinder) Scan(directory string) {
 }
 
 func (f *FileSizeFinder) findFiles(directory string) {
-	files, dirs := CollectFilesAndDirs(directory, f.Direction)
+	walkFinderFiles(directory, f.Direction, func(directory string, file os.FileInfo) {
+		if file.Size() >= f.Size {
+			// Keep the original size finder's path construction for compatibility.
+			path := FullFilePath(directory, directory, file)
 
-	for _, file := range files {
-		if file != nil {
-			fullFilePath := FullFilePath(directory, directory, file)
+			f.mutex.Lock()
 
-			if file.Size() >= f.Size {
-				f.mutex.Lock()
+			f.Files = append(f.Files, path)
 
-				f.Files = append(f.Files, fullFilePath)
-
-				f.mutex.Unlock()
-			}
+			f.mutex.Unlock()
 		}
-	}
-
-	dirLen := len(dirs)
-	if dirLen > 0 {
-		var dirGroup sync.WaitGroup
-
-		dirGroup.Add(dirLen)
-
-		for _, dir := range dirs {
-			go func(dirInfo os.FileInfo, dirName string, pathDirection string) {
-				f.findFiles(dirName + pathDirection + dirInfo.Name())
-
-				dirGroup.Done()
-			}(dir, directory, f.Direction)
-		}
-
-		dirGroup.Wait()
-	}
+	})
 }

@@ -13,11 +13,11 @@ release:
   script:
     - export CI=true
     - export VERSION=$CI_PIPELINE_IID
-    - apk add --no-cache bash
-    - ETE_DIR=$HOME ./scripts/e2e.sh
-    - go run cmd/pack/main.go
-    - go run main.go -m fff -k $(go run cmd/checksum/main.go) -p .
-    - cat scnnr_bins.zip.sha256
+    - apk add --no-cache bash build-base
+    - go test -race ./...
+    - go vet ./...
+    - ./scripts/e2e.sh
+    - ./scripts/bins.sh
 
   artifacts:
     paths:

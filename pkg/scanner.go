@@ -1,18 +1,19 @@
 package scnnr
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"sync"
 )
 
-// Scanner scans files and based on pattern stores in array for goroutine processing
+// Scanner configures a content search. Search returns results without printing
+// or changing the result fields; Scan also populates those fields and prints.
 type Scanner struct {
 	sync.Mutex
 	Regex            bool
@@ -28,13 +29,13 @@ type Scanner struct {
 	MatchedFilePaths []FileData
 }
 
-// FileData contains the path of the file as well as relevant metadata
+// FileData contains a file's path and metadata.
 type FileData struct {
 	Path string
 	Info os.FileInfo
 }
 
-// Match represents a single keyword match with position information
+// Match identifies a keyword occurrence. Lines and byte columns are one-based.
 type Match struct {
 	Path    string
 	Line    int
@@ -42,72 +43,144 @@ type Match struct {
 	Keyword string
 }
 
-// Scan walks the given directory tree and stores all matching files into a slice
-func (s *Scanner) Scan() error {
-	err := filepath.Walk(s.Directory, s.scan)
+// ScanResult contains candidate files, matching paths, and keyword occurrences.
+// Without keywords, Paths contains every candidate and Matches is empty.
+type ScanResult struct {
+	Files   []FileData
+	Paths   []string
+	Matches []Match
+}
+
+// Search walks Directory and returns results in file-path order. Empty keyword
+// and extension lists mean list files and include all extensions, respectively.
+func (s *Scanner) Search() (ScanResult, error) {
+	keywords := nonEmpty(s.Keywords)
+
+	positions := s.ShowLines || s.ShowCols
+	if positions && len(keywords) == 0 {
+		return ScanResult{}, errors.New("position tracking flags (-l, -c) require keywords (-k)")
+	}
+
+	matcher, err := newContentMatcher(keywords, s.Regex, positions)
 	if err != nil {
+		return ScanResult{}, err
+	}
+
+	extensions := nonEmpty(s.FileExtensions)
+
+	var result ScanResult
+
+	err = walkFiles(s.Directory, s.ExcludeDirs, func(path string) bool {
+		return includesExtension(filepath.Ext(path), extensions, s.ExcludeExts)
+	}, func(file FileData) error {
+		result.Files = append(result.Files, file)
+
+		return nil
+	})
+
+	if err != nil {
+		return ScanResult{}, err
+	}
+
+	if len(keywords) == 0 {
+		for _, file := range result.Files {
+			result.Paths = append(result.Paths, file.Path)
+		}
+
+		return result, nil
+	}
+
+	// Keep file I/O bounded independently of the number of discovered files.
+	slots := make(chan struct{}, concurrentFiles)
+
+	for _, chunk := range eachSlice(result.Files) {
+		matches := make([][]Match, len(chunk))
+		errs := make([]error, len(chunk))
+
+		var wg sync.WaitGroup
+
+		wg.Add(len(chunk))
+
+		for i, file := range chunk {
+			slots <- struct{}{}
+
+			go func() {
+				defer func() { <-slots; wg.Done() }()
+				matches[i], errs[i] = parseFile(file.Path, matcher)
+			}()
+		}
+
+		wg.Wait()
+
+		for i, fileMatches := range matches {
+			if errs[i] != nil {
+				return ScanResult{}, errs[i]
+			}
+
+			if len(fileMatches) > 0 {
+				result.Paths = append(result.Paths, chunk[i].Path)
+				result.Matches = append(result.Matches, fileMatches...)
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// Scan preserves the original API: result fields accumulate and output goes to
+// stdout. Walk errors are returned; file-reading errors use the original fatal
+// handling. Search remains an independent, additive result-oriented API.
+func (s *Scanner) Scan() error {
+	return s.ScanTo(os.Stdout)
+}
+
+// ScanTo supplies the output seam for testing Scan without changing its behavior.
+// Like Scan's original fmt.Println calls, output errors are not returned.
+func (s *Scanner) ScanTo(w io.Writer) error {
+	if err := filepath.Walk(s.Directory, s.scan); err != nil {
 		return err
 	}
 
 	if s.Keywords[0] == "" {
-		var foundFiles []string
+		var paths []string
 
-		for _, fileInfo := range s.MatchedFilePaths {
-			foundFiles = append(foundFiles, fileInfo.Path)
+		for _, file := range s.MatchedFilePaths {
+			paths = append(paths, file.Path)
 		}
 
-		fmt.Println(strings.Join(foundFiles, "\n"))
-	} else {
+		fmt.Fprintln(w, strings.Join(paths, "\n"))
+
+		return nil
+	}
+	for _, chunk := range legacySlices(s.MatchedFilePaths) {
 		var wg sync.WaitGroup
 
-		for _, chunk := range eachSlice(s.MatchedFilePaths) {
-			matchedCount := len(chunk)
+		wg.Add(len(chunk))
 
-			wg.Add(matchedCount)
-
-			for _, match := range chunk {
-				go func(m FileData) {
-					s.parse(m)
-
-					wg.Done()
-				}(match)
-			}
-
-			wg.Wait()
+		for _, file := range chunk {
+			go func() {
+				defer wg.Done()
+				s.parse(file)
+			}()
 		}
 
-		// Output results based on position tracking settings
-		if s.ShowLines || s.ShowCols {
-			s.outputPositionMatches()
-		} else {
-			// Original behavior
-			fmt.Println(strings.Join(s.KeywordMatches, "\n"))
+		wg.Wait()
+	}
+
+	if s.ShowLines || s.ShowCols {
+		options := OutputOptions{
+			ShowLines: s.ShowLines, ShowCols: s.ShowCols,
+			ShowKeywords: len(s.Keywords) > 1,
 		}
+
+		for _, match := range s.AllMatches {
+			fmt.Fprintln(w, formatMatch(match, options))
+		}
+	} else {
+		fmt.Fprintln(w, strings.Join(s.KeywordMatches, "\n"))
 	}
 
 	return nil
-}
-
-// outputPositionMatches formats and outputs matches with position information
-func (s *Scanner) outputPositionMatches() {
-	for _, match := range s.AllMatches {
-		output := match.Path
-
-		if s.ShowCols {
-			// -c flag shows both line and column
-			output = fmt.Sprintf("%s:%d:%d", output, match.Line, match.Column)
-		} else if s.ShowLines {
-			// -l flag shows only line
-			output = fmt.Sprintf("%s:%d", output, match.Line)
-		}
-
-		// If multiple keywords, append the matching keyword
-		if len(s.Keywords) > 1 {
-			output = fmt.Sprintf("%s:%s", output, match.Keyword)
-		}
-
-		fmt.Println(output)
-	}
 }
 
 func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
@@ -115,26 +188,20 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
-	// Check if directory should be excluded
-	if info.IsDir() && s.shouldExcludeDir(filepath.Base(path)) {
+	if info.IsDir() && slices.Contains(s.ExcludeDirs, filepath.Base(path)) {
 		return filepath.SkipDir
 	}
 
-	if !info.IsDir() {
-		fileExtension := filepath.Ext(path)
+	if info.IsDir() || slices.Contains(s.ExcludeExts, filepath.Ext(path)) {
+		return nil
+	}
 
-		// Check if file extension should be excluded
-		if s.shouldExcludeExt(fileExtension) {
-			return nil
-		}
-
-		if s.FileExtensions[0] == "" {
-			s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
-		} else {
-			for _, pattern := range s.FileExtensions {
-				if fileExtension == pattern {
-					s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
-				}
+	if s.FileExtensions[0] == "" {
+		s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
+	} else {
+		for _, extension := range s.FileExtensions {
+			if filepath.Ext(path) == extension {
+				s.MatchedFilePaths = append(s.MatchedFilePaths, FileData{path, info})
 			}
 		}
 	}
@@ -142,111 +209,47 @@ func (s *Scanner) scan(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-// If Regex is true the parser will switch to regex mode.
-// Otherwise strings.Contains will be used.
-func (s *Scanner) parse(match FileData) {
-	file, err := os.Open(match.Path)
+func (s *Scanner) parse(fileData FileData) {
+	file, err := os.Open(fileData.Path)
 
 	check(err)
 
-	scanner := bufio.NewScanner(file)
-
-	buf := make([]byte, 0, 1024)
-
-	// only extend buffer to file size
-	scanner.Buffer(buf, 2*int(match.Info.Size()))
-
-	found := false
-
-	lineNumber := 0
-
-	positionTracking := s.ShowLines || s.ShowCols
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		lineNumber++
-
-		for i := 0; i < len(s.Keywords); i++ {
-			if !positionTracking && found {
-				break
-			}
-
-			matchFound := false
-			var column int
-
-			if s.Regex {
-				re := regexp.MustCompile(s.Keywords[i])
-
-				if loc := re.FindStringIndex(line); loc != nil {
-					matchFound = true
-					column = loc[0] + 1
-				}
-			} else {
-				if idx := strings.Index(line, s.Keywords[i]); idx != -1 {
-					matchFound = true
-					column = idx + 1
-				}
-			}
-
-			if matchFound {
-				s.Lock()
-
-				if positionTracking {
-					match := Match{
-						Path:    match.Path,
-						Line:    lineNumber,
-						Column:  column,
-						Keyword: s.Keywords[i],
-					}
-
-					s.AllMatches = append(s.AllMatches, match)
-				} else {
-					s.KeywordMatches = append(s.KeywordMatches, match.Path)
-
-					found = true
-				}
-
-				s.Unlock()
-
-				if !positionTracking {
-					break
-				}
-			}
-		}
+	matcher := contentMatcher{
+		keywords: s.Keywords, regex: s.Regex,
+		positions: s.ShowLines || s.ShowCols,
 	}
 
-	check(scanner.Err())
+	err = matcher.parseLegacy(file, fileData.Path, fileData.Info.Size(), func(match Match) {
+		s.Lock()
+		defer s.Unlock()
+		if matcher.positions {
+			s.AllMatches = append(s.AllMatches, match)
+		} else {
+			s.KeywordMatches = append(s.KeywordMatches, match.Path)
+		}
+	})
+
+	check(err)
 
 	file.Close()
 }
 
-// shouldExcludeDir checks if a directory name should be excluded
-func (s *Scanner) shouldExcludeDir(dirName string) bool {
-	return slices.Contains(s.ExcludeDirs, dirName)
-}
-
-// shouldExcludeExt checks if a file extension should be excluded
-func (s *Scanner) shouldExcludeExt(ext string) bool {
-	return slices.Contains(s.ExcludeExts, ext)
-}
-
-func eachSlice(files []FileData) [][]FileData {
+// legacySlices preserves Scan's existing chunk-boundary behavior. The additive
+// Search API uses eachSlice, independently of this compatibility path.
+func legacySlices(files []FileData) [][]FileData {
 	var chunks [][]FileData
 	var chunk []FileData
 
-	for _, fileData := range files {
-		switch len(chunk) {
-		case 1024:
-			var newChunk []FileData
+	for _, file := range files {
+		if len(chunk) == filesPerChunk {
 			chunks = append(chunks, chunk)
-			chunk = newChunk
-		default:
-			chunk = append(chunk, fileData)
+			chunk = nil
+		} else {
+			chunk = append(chunk, file)
 		}
 	}
 
-	if len(chunk) < 1024 {
+	if len(chunk) < filesPerChunk {
 		chunks = append(chunks, chunk)
 	}
 
@@ -257,4 +260,88 @@ func check(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func includesExtension(ext string, extensions, excluded []string) bool {
+	if slices.Contains(excluded, ext) {
+		return false
+	}
+
+	return len(extensions) == 0 || slices.Contains(extensions, ext)
+}
+
+func parseFile(path string, matcher *contentMatcher) (matches []Match, err error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("open %q: %w", path, err)
+	}
+
+	defer func() { err = errors.Join(err, file.Close()) }()
+
+	matches, err = matcher.parse(file, path)
+
+	if err != nil {
+		err = fmt.Errorf("read %q: %w", path, err)
+	}
+
+	return matches, err
+}
+
+const (
+	filesPerChunk   = 1024
+	concurrentFiles = 128
+)
+
+func eachSlice(files []FileData) [][]FileData {
+	var chunks [][]FileData
+
+	for start := 0; start < len(files); start += filesPerChunk {
+		chunks = append(chunks, files[start:min(start+filesPerChunk, len(files))])
+	}
+
+	return chunks
+}
+
+// OutputOptions controls the CLI-compatible result format.
+type OutputOptions struct {
+	ShowLines    bool
+	ShowCols     bool
+	ShowKeywords bool
+}
+
+// WriteResults writes one path or occurrence per line and reports write errors.
+func WriteResults(w io.Writer, result ScanResult, options OutputOptions) error {
+	if options.ShowLines || options.ShowCols {
+		for _, match := range result.Matches {
+			if _, err := fmt.Fprintln(w, formatMatch(match, options)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	for _, path := range result.Paths {
+		if _, err := fmt.Fprintln(w, path); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func formatMatch(match Match, options OutputOptions) string {
+	output := match.Path
+
+	if options.ShowCols {
+		output = fmt.Sprintf("%s:%d:%d", output, match.Line, match.Column)
+	} else if options.ShowLines {
+		output = fmt.Sprintf("%s:%d", output, match.Line)
+	}
+
+	if options.ShowKeywords {
+		output += ":" + match.Keyword
+	}
+
+	return output
 }

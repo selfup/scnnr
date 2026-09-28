@@ -13,11 +13,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: OS Updates
-      run: "sudo apt update"
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+        cache: false
+    - name: Unit Tests
+      run: go test -race ./...
+    - name: Vet
+      run: go vet ./...
     - name: Build Bins
       run: ./scripts/bins.sh
     - name: E2E
-      run: ETE_DIR=$HOME ./scripts/e2e.sh
+      run: ./scripts/e2e.sh
     - name: Print SHA
       run: cat scnnr_bins.zip.sha256
