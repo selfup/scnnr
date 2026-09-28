@@ -26,6 +26,7 @@
       - [wget](#wget)
     - [Docker](#docker)
 - [Performance (scn)](#performance-scn)
+- [Tests](#tests)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -35,13 +36,15 @@ Scans files (by extension) in a given directory for a keyword. Can be any file, 
 
 Prints out a `\n` delimited string of each file (filepath in artifact) containing one of the keywords.
 
-Max file descriptors is set to 1024 (linux default) in scnnr scn mode.
+Content matching uses concurrent batches of up to 1024 files. Match output follows concurrent processing order.
 
-Has 3 additional modes: FileSizeFinder (find a file above a certain size), FileNameFinder (fuzzy find files with certain keywords in the filename), and FileFingerprintFinder (find files based on their SHA2-256 hash)
+Has 3 additional modes: FileSizeFinder (find a file at or above a certain size), FileNameFinder (fuzzy find files with certain keywords in the filename), and FileFingerprintFinder (find files based on their SHA2-256 hash)
 
 `scn` mode is the default
 
-_Caveat: will not throw an error if a file cannot be read due to permissions. It is assumed that you know what files you can read/have access to. This allows for a clean/parseable output_
+In scn mode, errors walking directories stop the scan. Errors opening or reading files selected for content scanning are fatal.
+
+Finder modes panic if the root directory cannot be read. Files with unavailable metadata are skipped, and errors reading child directories are ignored. Failed directory metadata reads can still cause a panic.
 
 ### Help
 
@@ -150,58 +153,38 @@ scnnr -e .md -d . -k cache=
 
 _using -k_
 
+These examples use the files in `pkg/testdata/tree`. Matching paths can appear in a different order.
+
 ```bash
-$ scnnr -d . -e .md,.go -k fileData,cache
-README.md
-cmd/scanner.go
+$ scnnr -d pkg/testdata/tree -e .txt,.go -k needle,token -xd ignored
+pkg/testdata/tree/alpha.txt
+pkg/testdata/tree/nested/beta.go
 ```
 
 ### Keywords with line numbers
 
 _using -l_
 
+Prints the first occurrence of each keyword on each matching line. With multiple keywords, the matching keyword is appended to each result.
+
 ```bash
-$ scnnr -d . -e .md,.go -k fileData,cache -l
-scnnr_bins/README.md:117:cache
-scnnr_bins/README.md:122:cache
-scnnr_bins/README.md:129:cache
-scnnr_bins/README.md:135:fileData
-scnnr_bins/README.md:135:cache
-README.md:123:cache
-README.md:128:cache
-README.md:135:cache
-README.md:141:fileData
-README.md:141:cache
-scnnr_bins/README.md:377:cache
-scnnr_bins/README.md:387:cache
-README.md:383:cache
-README.md:393:cache
-pkg/scanner.go:215:fileData
-pkg/scanner.go:222:fileData
+$ scnnr -d pkg/testdata/tree -e .txt,.go -k needle,token -l -xd ignored
+pkg/testdata/tree/alpha.txt:1:needle
+pkg/testdata/tree/alpha.txt:2:token
+pkg/testdata/tree/nested/beta.go:2:needle
 ```
 
 ### Keywords with both line numbers and column numbers
 
 _using -c_
 
+Line and column numbers start at 1. Columns count bytes.
+
 ```bash
-$ scnnr -d . -e .md,.go -k fileData,cache -c
-scnnr_bins/README.md:117:53:cache
-scnnr_bins/README.md:122:29:cache
-scnnr_bins/README.md:129:22:cache
-scnnr_bins/README.md:135:28:fileData
-scnnr_bins/README.md:135:37:cache
-scnnr_bins/README.md:377:36:cache
-scnnr_bins/README.md:387:40:cache
-pkg/scanner.go:215:9:fileData
-pkg/scanner.go:222:26:fileData
-README.md:123:53:cache
-README.md:128:29:cache
-README.md:135:22:cache
-README.md:141:28:fileData
-README.md:141:37:cache
-README.md:383:36:cache
-README.md:393:40:cache
+$ scnnr -d pkg/testdata/tree -e .txt,.go -k needle,token -c -xd ignored
+pkg/testdata/tree/alpha.txt:1:7:needle
+pkg/testdata/tree/alpha.txt:2:8:token
+pkg/testdata/tree/nested/beta.go:2:4:needle
 ```
 
 ### Keywords while excluding dirs and file extensions
@@ -209,32 +192,10 @@ README.md:393:40:cache
 _using -xd and -xe_
 
 ```bash
-go run main.go -k main,let,for -p . -c -xd ".git,scnnr_bins,pkg,cmd,.zip" -xe ".yml,.sh,.md" 
-.editorconfig:11:21:let
-.gitignore:3:1:main
-.gitignore:4:1:main
-.dockerignore:3:1:main
-.dockerignore:4:1:main
-Dockerfile:14:21:main
-Dockerfile:15:25:main
-main.go:25:9:main
-main.go:36:6:main
-main.go:46:8:for
-main.go:47:8:for
-main.go:48:8:for
-main.go:49:8:for
-main.go:70:65:for
-main.go:78:57:for
-main.go:84:23:for
-main.go:89:34:for
-main.go:125:3:for
-main.go:129:3:for
-main.go:172:3:for
-main.go:179:42:for
-main.go:186:3:for
-scnnr_bins.zip:2053:93:for
-scnnr_bins.zip:26325:8:let
-scnnr_bins.zip:32123:53:let
+$ scnnr -d pkg/testdata/tree -k needle,token -c -xd ignored -xe .log
+pkg/testdata/tree/alpha.txt:1:7:needle
+pkg/testdata/tree/alpha.txt:2:8:token
+pkg/testdata/tree/nested/beta.go:2:4:needle
 ```
 
 # File Name Finder (NameFinder) (fnf)
@@ -277,9 +238,8 @@ scnnr -m fnf -f DEFCON,Finance,Tax,Return -p /tmp,/usr,/etc,$HOME/Documents
 Example use to find a file with a known hash:
 
 ```bash
-$ known_hash="de4f51f97fa690026e225798ff294cd182b93847aaa46fe1e32b848eb9e985bd"
-$ go run main.go -m fff -d $HOME/Documents -k $known_hash
-/home/selfup/Documents//dotfiles/mac/.bash_profile
+$ scnnr -m fff -d pkg/testdata/tree -k e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+pkg/testdata/tree/empty.txt
 ```
 
 Please refer to the release notes for more details:
@@ -296,11 +256,13 @@ Gitlab: https://gitlab.com/selfup/scnnr/-/releases/v1.1.8
             size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB
 ```
 
-Example use to find any file over 100MB in E:/LotsOfStuff
+Example use to find any file at least 100MB in E:/LotsOfStuff
 
 ```bash
 scnnr -m fsf -s 100MB -d E:/LotsOfStuff
 ```
+
+Sizes use decimal bytes: 1MB is 1,000,000 bytes. Files equal to the threshold are included.
 
 # Back to Scnnr
 
@@ -308,6 +270,8 @@ scnnr -m fsf -s 100MB -d E:/LotsOfStuff
 
 ```go
 import (
+  "log"
+
   scnnr "github.com/selfup/scnnr/pkg"
 )
 
@@ -328,28 +292,65 @@ if err != nil {
 }
 ```
 
+`Scan` prints to stdout and appends to the scanner's result fields. Reusing a scanner also reprocesses its accumulated candidate files. Use `[]string{""}` for no keywords or all extensions; nil or empty keyword and extension slices can panic.
+
+With position tracking, each file parse records the first occurrence of each keyword per line. Without position tracking, each parse records at most one matching path and continues reading the file. Duplicate extensions and repeated scans can produce duplicate results.
+
+The current batching code can omit files: a full final 1024-file batch is not parsed, and the file that flushes a full batch is skipped. Listing paths without keywords does not use this batching.
+
+`Scan` returns directory traversal errors. Errors opening or reading a file call `log.Fatal`. Invalid regexes can panic when a line is examined. `ScanTo(writer)` directs the same output to a writer. Both methods ignore output write errors.
+
+The working tree also includes `Search`, `ScanTo`, `WriteResults`, and `ParseSize`. These methods and helpers are absent from v1.3.0.
+
+`Search` returns results without printing or changing the scanner's result fields. It removes empty strings from keyword and extension lists, returns read and regex errors, and orders results by file path. With `ShowLines` or `ShowCols` enabled, it requires a nonempty keyword and collects all non-overlapping occurrences of each keyword. Without those flags, it stops reading each file after its first match.
+
+With the scanner above and a writer:
+
+```go
+scanner.ShowCols = true
+
+result, err := scanner.Search()
+
+if err != nil {
+  log.Fatal(err)
+}
+
+err = scnnr.WriteResults(writer, result, scnnr.OutputOptions{
+  ShowCols:     true,
+  ShowKeywords: len(scanner.Keywords) > 1,
+})
+
+if err != nil {
+  log.Fatal(err)
+}
+```
+
+`WriteResults` returns output write errors.
+
+All three finder methods use `Scan(directory string)` with no return value and append results to `Files`. NameFinder and SizeFinder construct paths as `directory + directory + filename`. FingerprintFinder uses `directory + Direction + filename`, matches digest substrings, and ignores file read errors.
+
+`NewFileSizeFinder` panics on invalid sizes. `scnnr.ParseSize` validates the same thresholds and returns an error for an invalid size.
+
 ## Regex
 
 ### Using Regex Patterns
 
-`scnnr -e ".js" -d "artifact" -k "cons?" -r T > .results`
+`scnnr -e ".js" -d "artifact" -k "cons?" -r=T > .results`
 
 According to the godoc for `flag.BoolVar` you can use a few things for boolean flag values:
 
 `t, T, 1, true, True, TRUE`
 
-```
-scnnr $ time scnnr -r 1 -d artifact -e .js,.ts,.md -k 'cons*,let?,var?, impor*, expor*' > .results
-
-real    0m0.748s
-user    0m2.398s
-sys     0m0.311s
+```bash
+scnnr -r=1 -d artifact -e .js,.ts,.md -k 'cons*,let?,var?, impor*, expor*' > .results
 ```
 
 ### Using the package github.com/selfup/scnnr/pkg
 
 ```go
 import (
+  "log"
+
   scnnr "github.com/selfup/scnnr/pkg"
 )
 
@@ -469,7 +470,16 @@ scnnr.exe
 
 Use of goroutines, buffers, streams, mutexes, and simple checks.
 
-Memory in the following example never went above 5.5MB for the entire program.
+The following are historical measurements from a JavaScript project. They have not been rerun for the current working tree. The original memory measurement reported usage below 5.5MB.
+
+To measure the current build, compile once and time the binary using your own directory:
+
+```bash
+go build -o /tmp/scnnr-bench main.go
+time /tmp/scnnr-bench -d path/to/files -e .js,.md -k cache
+```
+
+Timing `go run` also includes build and launch overhead. Timings depend on the files, filesystem cache, and machine used.
 
 No matches on 33k files after `npm i` for a JavaScript project as the `artifact`:
 
@@ -520,3 +530,17 @@ sys     0m0.351s
 $ ls -lahg .results
 -rw-r--r-- 1 selfup 1.2M Jul 21 00:57 .results
 ```
+
+## Tests
+
+```bash
+go test -race ./...
+go vet ./...
+./scripts/e2e.sh
+```
+
+Tests cover reader and writer failures, build execution, filesystem fixtures, matching, accumulated results, and CLI exit statuses. Compile-time checks cover the existing finder and scanner signatures and selected helpers.
+
+The E2E script creates its own temporary tree and checks output for all four modes. Set `ETE_DIR` to choose the parent directory for those fixtures.
+
+`go vet` checks for suspicious code patterns. It does not detect unused function or method declarations.

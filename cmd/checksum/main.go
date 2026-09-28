@@ -1,10 +1,13 @@
 package main
 
 import (
-	"crypto/sha256"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
+
+	"github.com/selfup/scnnr/internal/digest"
 )
 
 const (
@@ -13,19 +16,31 @@ const (
 )
 
 func main() {
-	zip, err := os.ReadFile(source)
+	if err := run(source, destination, os.Stdout); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func checksum(r io.Reader, name string, stdout io.Writer) (string, error) {
+	sum, err := digest.SHA256(r)
 	if err != nil {
-		log.Fatalln(err)
+		return "", err
 	}
-
-	sum := sha256.Sum256(zip)
-	sumStr := fmt.Sprintf("%x", sum)
-	sumStrBytes := []byte(sumStr + "  " + source + "\n")
-
-	fmt.Println(sumStr)
-
-	writeErr := os.WriteFile(destination, sumStrBytes, os.ModePerm)
-	if writeErr != nil {
-		log.Fatalln(writeErr)
+	if _, err := fmt.Fprintln(stdout, sum); err != nil {
+		return "", err
 	}
+	return sum + "  " + name + "\n", nil
+}
+
+func run(source, destination string, stdout io.Writer) (err error) {
+	file, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, file.Close()) }()
+	line, err := checksum(file, source, stdout)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(destination, []byte(line), 0644)
 }

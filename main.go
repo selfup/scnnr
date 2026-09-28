@@ -25,21 +25,45 @@ THE SOFTWARE.
 package main
 
 import (
+	"errors"
 	"flag"
-	"fmt"
+	"io"
 	"log"
+	"os"
 	"strings"
 
 	scnnr "github.com/selfup/scnnr/pkg"
 )
 
+type options struct {
+	mode, directory, size                                        string
+	extensions, keywords, paths, fuzzy, excludeDirs, excludeExts []string
+	regex, showLines, showCols                                   bool
+}
+
 func main() {
-	var directory string
-	var extensions []string
-	var keywords []string
+	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {
+		var parseErr *flagError
+
+		if errors.As(err, &parseErr) {
+			os.Exit(2)
+		}
+
+		log.Fatal(err)
+	}
+}
+
+type flagError struct{ error }
+
+func (e *flagError) Unwrap() error { return e.error }
+
+func parseOptions(args []string, stderr io.Writer) (options, error) {
+	flags := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	flags.SetOutput(stderr)
 
 	var mode string
-	flag.StringVar(&mode, "m", "scn", `OPTIONAL
+
+	flags.StringVar(&mode, "m", "scn", `OPTIONAL
     mode that scnnr will run in
 
     options are:
@@ -56,135 +80,155 @@ func main() {
 `)
 
 	var dir string
-	flag.StringVar(&dir, "d", ".", `OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
+	flags.StringVar(&dir, "d", ".", `OPTIONAL Scnnr MODE and OPTIONAL FingerrintFinder MODE
     directory where scnnr will scan
     default is current directory and all child directories`)
 
 	var ext string
-	flag.StringVar(&ext, "e", "", `OPTIONAL Scnnr MODE
+	flags.StringVar(&ext, "e", "", `OPTIONAL Scnnr MODE
     a comma delimited list of file extensions to scan
     if none are given all files will be searched`)
 
 	var kwd string
-	flag.StringVar(&kwd, "k", "", `OPTIONAL Scnnr MODE and REQUIRED FingerprintFinder
+	flags.StringVar(&kwd, "k", "", `OPTIONAL Scnnr MODE and REQUIRED FingerprintFinder
     scnnr: this is a comma delimited list of characters to look for in a file
         if no keywords are given - all file paths of given file extensions will be returned
         if keywords are given - only filepaths of matches will be returned
     FingerprintFinder: this is a comma delimited list of SHA2-256 hashes to find files by`)
 
 	var rgx bool
-	flag.BoolVar(&rgx, "r", false, `OPTIONAL Scnnr MODE
+	flags.BoolVar(&rgx, "r", false, `OPTIONAL Scnnr MODE
     if you want to use the regex engine or not
     defaults to false and will not use the regex engine for scans unless set to a truthy value
     truthy values are: 1, t, T, true, True, TRUE
     falsy values are: 0, f, F, false, False, FALSE`)
 
 	var showLines bool
-	flag.BoolVar(&showLines, "l", false, `OPTIONAL Scnnr MODE
+	flags.BoolVar(&showLines, "l", false, `OPTIONAL Scnnr MODE
     show line numbers for each match (requires -k)
     when enabled, finds ALL matches in files (no early exit)`)
 
 	var showCols bool
-	flag.BoolVar(&showCols, "c", false, `OPTIONAL Scnnr MODE
+	flags.BoolVar(&showCols, "c", false, `OPTIONAL Scnnr MODE
     show line and column numbers for each match (requires -k)
     when enabled, finds ALL matches in files (no early exit)`)
 
 	var paths string
-	flag.StringVar(&paths, "p", "", `REQUIRED NameFinder MODE
+	flags.StringVar(&paths, "p", "", `REQUIRED NameFinder MODE
     any absolute path - can be comma delimited: Example: $HOME or '/tmp,/usr'`)
 
 	var fuzzy string
-	flag.StringVar(&fuzzy, "f", "", `REQUIRED NameFinder MODE
+	flags.StringVar(&fuzzy, "f", "", `REQUIRED NameFinder MODE
     fuzzy find the filename(s) contain(s) - can be comma delimited: Example 'wow' or 'wow,omg,lol'`)
 
 	var size string
-	flag.StringVar(&size, "s", "", `REQUIRED SizeFinder MODE
+	flags.StringVar(&size, "s", "", `REQUIRED SizeFinder MODE
     size: 1MB,10MB,100MB,1GB,10GB,100GB,1TB`)
 
 	var excludeDirs string
-	flag.StringVar(&excludeDirs, "xd", "", `OPTIONAL Scnnr MODE
+	flags.StringVar(&excludeDirs, "xd", "", `OPTIONAL Scnnr MODE
     comma-delimited list of directory names to exclude from scanning
     ex: -xd ".git,node_modules,.venv"`)
 
 	var excludeExts string
-	flag.StringVar(&excludeExts, "xe", "", `OPTIONAL Scnnr MODE
+	flags.StringVar(&excludeExts, "xe", "", `OPTIONAL Scnnr MODE
     comma-delimited list of file extensions to exclude from scanning
     ex: -xe ".log,.tmp,.json"`)
 
-	flag.Parse()
-
-	directory = dir
-
-	switch mode {
-	case "fnf":
-		scanFuzzy := strings.Split(fuzzy, ",")
-		scanPaths := strings.Split(paths, ",")
-
-		nfnf := scnnr.NewFileNameFinder(scanFuzzy)
-
-		for _, path := range scanPaths {
-			nfnf.Scan(path)
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return options{}, err
 		}
 
-		for _, file := range nfnf.Files {
-			fmt.Println(file)
-		}
+		return options{}, &flagError{err}
+	}
+
+	return options{
+		mode: mode, directory: dir, size: size,
+		extensions: splitList(ext), keywords: splitList(kwd),
+		paths: splitList(paths), fuzzy: splitList(fuzzy),
+		excludeDirs: optionalList(excludeDirs), excludeExts: optionalList(excludeExts),
+		regex: rgx, showLines: showLines, showCols: showCols,
+	}, nil
+}
+
+func splitList(value string) []string {
+	return strings.Split(value, ",")
+}
+
+func optionalList(value string) []string {
+	if value == "" {
+		return nil
+	}
+
+	return splitList(value)
+}
+
+func (o options) validate() error {
+	switch o.mode {
 	case "scn":
-		extensions = strings.Split(ext, ",")
-		keywords = strings.Split(kwd, ",")
-
-		if (showLines || showCols) && keywords[0] == "" {
-			log.Fatal("Position tracking flags (-l, -c) require keywords (-k)")
-		}
-
-		var excludeDirsList []string
-		var excludeExtsList []string
-
-		if excludeDirs != "" {
-			excludeDirsList = strings.Split(excludeDirs, ",")
-		}
-
-		if excludeExts != "" {
-			excludeExtsList = strings.Split(excludeExts, ",")
-		}
-
-		scanner := scnnr.Scanner{
-			Regex:          rgx,
-			Keywords:       keywords,
-			Directory:      directory,
-			FileExtensions: extensions,
-			ShowLines:      showLines,
-			ShowCols:       showCols,
-			ExcludeDirs:    excludeDirsList,
-			ExcludeExts:    excludeExtsList,
-		}
-
-		err := scanner.Scan()
-
-		if err != nil {
-			log.Fatal(err)
-		}
-	case "fsf":
-		nfsf := scnnr.NewFileSizeFinder(size)
-
-		nfsf.Scan(directory)
-
-		for _, file := range nfsf.Files {
-			fmt.Println(file)
+		if (o.showLines || o.showCols) && o.keywords[0] == "" {
+			return errors.New("Position tracking flags (-l, -c) require keywords (-k)")
 		}
 	case "fff":
-		keywords = strings.Split(kwd, ",")
-
-		if keywords[0] == "" {
-			log.Fatal("-k (known hashes) REQUIRED for FileFingerprintFinder")
-		}
-
-		nfff := scnnr.NewFileFingerprintFinder(keywords)
-
-		nfff.Scan(directory)
-
-		for _, file := range nfff.Files {
-			fmt.Println(file)
+		if o.keywords[0] == "" {
+			return errors.New("-k (known hashes) REQUIRED for FileFingerprintFinder")
 		}
 	}
+
+	return nil
+}
+
+// run keeps flag state, output, and errors local to each invocation.
+func run(args []string, stdout, stderr io.Writer) error {
+	o, err := parseOptions(args, stderr)
+
+	if errors.Is(err, flag.ErrHelp) {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if err := o.validate(); err != nil {
+		return err
+	}
+
+	var paths []string
+
+	switch o.mode {
+	case "scn":
+		scanner := scnnr.Scanner{
+			Directory: o.directory, FileExtensions: o.extensions, Keywords: o.keywords,
+			Regex: o.regex, ShowLines: o.showLines, ShowCols: o.showCols,
+			ExcludeDirs: o.excludeDirs, ExcludeExts: o.excludeExts,
+		}
+
+		return scanner.ScanTo(stdout)
+	case "fnf":
+		finder := scnnr.NewFileNameFinder(o.fuzzy)
+
+		for _, path := range o.paths {
+			finder.Scan(path)
+		}
+
+		paths = finder.Files
+	case "fsf":
+		finder := scnnr.NewFileSizeFinder(o.size)
+		finder.Scan(o.directory)
+
+		paths = finder.Files
+	case "fff":
+		finder := scnnr.NewFileFingerprintFinder(o.keywords)
+		finder.Scan(o.directory)
+
+		paths = finder.Files
+	}
+
+	for _, path := range paths {
+		io.WriteString(stdout, path+"\n")
+	}
+
+	return nil
 }

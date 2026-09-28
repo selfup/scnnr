@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// FileNameFinder struct contains needed data to perform concurrent operations
+// FileNameFinder finds filenames containing the supplied keywords.
 type FileNameFinder struct {
 	mutex     sync.Mutex
 	Direction string
@@ -14,58 +14,39 @@ type FileNameFinder struct {
 	Keywords  []string
 }
 
-// NewFileNameFinder creates a pointer to FileNameFinder with default values
 func NewFileNameFinder(keywords []string) *FileNameFinder {
-	fnf := new(FileNameFinder)
-
-	fnf.Direction = PathDirection()
-
-	fnf.Keywords = keywords
-
-	return fnf
+	return &FileNameFinder{Direction: PathDirection(), Keywords: keywords}
 }
 
-// Scan is a concurrent/parallel directory walker
+// Scan preserves the original void API and root-directory panic. Results append
+// as files are visited, including a result for each matching keyword.
 func (f *FileNameFinder) Scan(directory string) {
 	CheckDirOrPanic(directory)
+
 	f.findFiles(directory)
 }
 
 func (f *FileNameFinder) findFiles(directory string) {
-	files, dirs := CollectFilesAndDirs(directory, f.Direction)
+	walkFinderFiles(directory, f.Direction, func(directory string, file os.FileInfo) {
+		// Keep the original name finder's path construction for compatibility.
+		path := FullFilePath(directory, directory, file)
 
-	for _, file := range files {
-		if file != nil {
-			fileName := file.Name()
-
-			fullFilePath := FullFilePath(directory, directory, file)
-
-			for _, keyword := range f.Keywords {
-				if strings.Contains(fileName, keyword) {
-					f.mutex.Lock()
-
-					f.Files = append(f.Files, fullFilePath)
-
-					f.mutex.Unlock()
-				}
+		for _, keyword := range f.Keywords {
+			if strings.Contains(file.Name(), keyword) {
+				f.mutex.Lock()
+				f.Files = append(f.Files, path)
+				f.mutex.Unlock()
 			}
 		}
-	}
+	})
+}
 
-	dirLen := len(dirs)
-	if dirLen > 0 {
-		var dirGroup sync.WaitGroup
-
-		dirGroup.Add(dirLen)
-
-		for _, dir := range dirs {
-			go func(dirInfo os.FileInfo, dirName string, pathDirection string) {
-				f.findFiles(dirName + pathDirection + dirInfo.Name())
-
-				dirGroup.Done()
-			}(dir, directory, f.Direction)
+func containsAny(value string, keywords []string) bool {
+	for _, keyword := range keywords {
+		if keyword != "" && strings.Contains(value, keyword) {
+			return true
 		}
-
-		dirGroup.Wait()
 	}
+
+	return false
 }

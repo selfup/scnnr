@@ -1,118 +1,70 @@
 #!/usr/bin/env bash
 
-set -eou pipefail
+set -euo pipefail
 
-e2e_dir=$HOME
+fixture_dir=$(mktemp -d "${ETE_DIR:-${TMPDIR:-/tmp}}/scnnr-e2e.XXXXXX")
 
-if [[ $ETE_DIR != "" ]]
-then
-    e2e_dir=$ETE_DIR
-fi
+trap 'rm -rf "$fixture_dir"' EXIT
 
-##################################################
-##################################################
-##################################################
+mkdir -p "$fixture_dir/nested" "$fixture_dir/ignored"
 
-echo "--- FILE SIZE FINDER DRY RUN: BEGIN ---"
+printf 'needle needle\ntoken\n' > "$fixture_dir/alpha.txt"
+printf 'needle\n' > "$fixture_dir/nested/beta.txt"
+printf 'needle\n' > "$fixture_dir/ignored/hidden.txt"
+printf 'needle\n' > "$fixture_dir/skip.log"
+printf 'abc' > "$fixture_dir/abc.bin"
 
-go run main.go -m fsf -s 1MB -d $e2e_dir
+dd if=/dev/zero of="$fixture_dir/large.bin" bs=1000000 count=1 2>/dev/null
 
-echo "--- FILE SIZE FINDER DRY RUN: DONE ---"
+assert_output() {
+    local expected=$1
+    shift
+    local actual
+    
+    # The original scanner appends matches from concurrent file readers.
+    actual=$(go run main.go "$@" | LC_ALL=C sort)
+    expected=$(printf '%s' "$expected" | LC_ALL=C sort)
+    
+    if [[ "$actual" != "$expected" ]]; then
+        printf 'Unexpected output for %s\nExpected:\n%s\nActual:\n%s\n' "$*" "$expected" "$actual" >&2
+        exit 1
+    fi
+}
 
-sleep 2
+assert_output "$fixture_dir/alpha.txt"$'\n'"$fixture_dir/nested/beta.txt" \
+    -d "$fixture_dir" -e .txt -k needle -xd ignored
 
-##################################################
-##################################################
-##################################################
+assert_output "$fixture_dir/alpha.txt:1:1"$'\n'"$fixture_dir/nested/beta.txt:1:1" \
+    -d "$fixture_dir" -e .txt -k needle -c -xd ignored
 
-echo "--- FILE NAME FINDER DRY RUN: BEGIN---"
+assert_output "$fixture_dir/alpha.txt:1:needle"$'\n'"$fixture_dir/alpha.txt:2:token"$'\n'"$fixture_dir/nested/beta.txt:1:needle" \
+    -d "$fixture_dir" -e .txt -k needle,token -l -xd ignored
 
-go run main.go -m fnf -f main,DEFCON -p $e2e_dir
+assert_output "$fixture_dir/alpha.txt"$'\n'"$fixture_dir/nested/beta.txt" \
+    -d "$fixture_dir" -k 'n.edle' -r -xd ignored -xe .log
 
-echo "--- FILE NAME FINDER DRY RUN: DONE ---"
+assert_output "$fixture_dir${fixture_dir}alpha.txt" \
+    -m fnf -p "$fixture_dir" -f alpha
 
-sleep 2
+assert_output "$fixture_dir${fixture_dir}large.bin" \
+    -m fsf -d "$fixture_dir" -s 1MB
 
-##################################################
-##################################################
-##################################################
+assert_output "$fixture_dir/abc.bin" \
+    -m fff -d "$fixture_dir" -k ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
 
-echo "--- SCANNER DRY RUN: BEGIN---"
+assert_output "" -d "$fixture_dir" -k absent
 
-go run main.go -k main,const,let,var,for -p $e2e_dir
+for failure in missing-directory invalid-regex missing-keywords; do
+    case "$failure" in
+        missing-directory) args=(-d "$fixture_dir/missing") ;;
+        invalid-regex) args=(-d "$fixture_dir" -k '[' -r) ;;
+        missing-keywords) args=(-c) ;;
+    esac
+    
+    if go run main.go "${args[@]}" >/dev/null 2>&1; then
+        printf 'Expected failure for %s\n' "$failure" >&2
+        exit 1
+    fi
+done
 
-echo "--- SCANNER DRY RUN: DONE ---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- FILE FINGERPRINT FINDER DRY RUN: BEGIN---"
-
-go run main.go -m fff -k $(go run cmd/checksum/main.go) -d .
-
-echo "--- FILE FINGERPRINT FINDER DRY RUN: DONE---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- SCANNER LINE RUN: BEGIN---"
-
-go run main.go -k main,const,let,var,for -p $e2e_dir -l
-
-echo "--- SCANNER LINE RUN: DONE ---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- SCANNER LINE AND COL RUN: BEGIN---"
-
-go run main.go -k main,const,let,var,for -p $e2e_dir -c
-
-echo "--- SCANNER LINE AND COL RUN: DONE ---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- SCANNER DIR EXCLUDE RUN: BEGIN---"
-
-sleep 2
-
-go run main.go -k main,const,let,var,for -p $e2e_dir -c -xd ".git"
-
-echo "--- SCANNER DIR EXCLUDE RUN: DONE ---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- SCANNER EXTENSION EXCLUDE RUN: BEGIN---"
-
-go run main.go -k main,const,let,var,for -p $e2e_dir -c -xe ".yml,.sh,.md"
-
-echo "--- SCANNER EXTENSION RUN: DONE ---"
-
-sleep 2
-
-##################################################
-##################################################
-##################################################
-
-echo "--- SCANNER DIRECTORY AND EXTENSION EXCLUDE RUN: BEGIN---"
-
-go run main.go -k main,const,let,var,for -p $e2e_dir -c -xd ".git" -xe ".yml,.sh,.md"
-
-echo "--- SCANNER DIRECTORY AND EXTENSION RUN: DONE ---"
+printf 'CLI fixtures passed\n'
